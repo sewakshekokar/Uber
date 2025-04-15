@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Ride Confirmed</title>
+  <style>
+    body {
+      background: white;
+      color: black;
+      font-family: Arial, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 28px;
+      margin-bottom: 20px;
+    }
+
+    .animation-wrapper {
+      position: relative;
+      width: 100px;
+      height: 100px;
+      margin-bottom: 20px;
+    }
+
+    .spinner {
+      position: absolute;
+      width: 100px;
+      height: 100px;
+      border: 4px solid green;
+      border-radius: 50%;
+      clip-path: inset(0 0 0 50%);
+      animation: spin 2s linear forwards;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(720deg); }
+    }
+
+    .full-circle {
+      width: 100px;
+      height: 100px;
+      border: 4px solid green;
+      border-radius: 50%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: none;
+    }
+
+    .done-icon {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0.5);
+      font-size: 48px;
+      color: green;
+      opacity: 0;
+      transition: all 0.6s ease;
+    }
+
+    .done-icon.show {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+
+    .details {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    .enjoy {
+      margin-top: 15px;
+      font-size: 18px;
+      color: green;
+      font-weight: bold;
+      display: none;
+    }
+
+    .priority {
+      margin-top: 10px;
+      font-size: 16px;
+      color: orange;
+      font-weight: bold;
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>Your ride is booked!</h1>
+
+  <div class="animation-wrapper">
+    <div class="spinner" id="spinner"></div>
+    <div class="full-circle" id="fullCircle"></div>
+    <div class="done-icon" id="checkmark">✔️</div>
+  </div>
+
+  <div class="details" id="rideDetails"></div>
+  <div class="priority" id="priorityNote">Priority Ride</div>
+  <div class="enjoy" id="enjoyMessage">Enjoy your ride!</div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const ride = params.get("ride") || "Unknown";
+    const drop = params.get("drop") || "Not specified";
+    const fareString = params.get("fare") || "₹0.00";
+    const fare = parseFloat(fareString.replace(/[^\d.]/g, ''));
+    const pickup = "Your Location";
+
+    // Base fares
+    const baseFares = {
+      Moto: 115,
+      Auto: 198,
+      Cab: 345
+    };
+
+    // Check for priority ride
+    const base = baseFares[ride];
+    const expectedPriorityFare = base ? base * 1.25 : 0;
+    const isPriority = Math.abs(fare - expectedPriorityFare) < 0.01;
+
+    // Show details
+    document.getElementById("rideDetails").innerHTML = `
+      <strong>Ride Type:</strong> ${ride}<br>
+      <strong>Pickup:</strong> ${pickup}<br>
+      <strong>Destination:</strong> ${drop}<br>
+      <strong>Fare:</strong> ₹${fare.toFixed(2)}
+    `;
+
+    // Animation end actions
+    setTimeout(() => {
+      document.getElementById("spinner").style.display = "none";
+      document.getElementById("fullCircle").style.display = "block";
+      document.getElementById("checkmark").classList.add("show");
+      document.getElementById("enjoyMessage").style.display = "block";
+      if (isPriority) {
+        document.getElementById("priorityNote").style.display = "block";
+      }
+    }, 2000);
+  </script>
+</body>
+</html>
