@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Profile</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+
+    .profile-header {
+      background-color: #fff;
+      padding: 1.5rem;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .profile-header .user-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .profile-header .user-info .name {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .profile-header .user-info .email {
+      color: #666;
+      font-size: 1rem;
+    }
+
+    .profile-header .profile-img {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .profile-actions {
+      background-color: #fff;
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .profile-actions .action-item {
+      background-color: #fff;
+      width: 100%; /* Full width */
+      padding: 20px;
+      margin-bottom: 1.5rem;
+      border-radius: 25px; /* Rounded ends */
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      font-size: 1.1rem;
+      color: #333;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    .profile-actions .action-item:hover {
+      background-color: #f0f0f0;
+      color: #000;
+    }
+
+    .footer-nav {
+      display: flex;
+      justify-content: space-around;
+      padding: 0;
+      border-top: 1px solid #ddd;
+      background: #fff;
+      position: fixed;
+      bottom: 0;
+      width: 100%;
+      height: 60px;
+    }
+
+    .nav-btn {
+      background: #fff;
+      border: none;
+      font-size: 14px;
+      color: #555;
+      text-align: center;
+      padding: 15px;
+      flex-grow: 1;
+      border-radius: 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 100%;
+    }
+
+    .nav-btn.active {
+      color: #000;
+      font-weight: bold;
+      background-color: #f0f0f0;
+    }
+
+  </style>
+</head>
+<body>
+
+  <!-- Profile Header -->
+  <div class="profile-header">
+    <div class="user-info">
+      <div class="name">John Doe</div>
+      <div class="email">johndoe@example.com</div>
+    </div>
+    <img src="profile-pic.jpg" alt="Profile Picture" class="profile-img" />
+  </div>
+
+  <!-- Profile Actions with Full-Width Buttons -->
+  <div class="profile-actions">
+    <div class="action-item" onclick="window.location.href='wallet.html'">
+      <br>Wallet
+    </div>
+    <div class="action-item" onclick="window.location.href='settings.html'">
+       <br>Settings
+    </div>
+    <div class="action-item" onclick="window.location.href='help.html'">
+      <br>Help
+    </div>
+    
+    
+    <div class="action-item" onclick="window.location.href='rider-insurance.html'">
+      <br>Rider Insurance
+    </div>
+    <div class="action-item" onclick="window.location.href='legal.html'">
+        <br>Legal
+      </div>
+  </div>
+
+  <!-- Footer Navigation -->
+  <footer>
+    <nav class="footer-nav">
+      <button class="nav-btn" onclick="window.location.href='index.html'">🏠<br>Home</button>
+      <button class="nav-btn" onclick="window.location.href='activity.html'">📋<br>Activity</button>
+      <button class="nav-btn active" onclick="window.location.href='profile.html'">👤<br>Account</button>
+    </nav>
+  </footer>
+
+</body>
+</html>
