@@ -5,6 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Ride Confirmed</title>
   <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       background: white;
       color: black;
@@ -13,8 +19,10 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 30px 20px;
+      padding: 30px 20px 70px; /* space for footer */
       text-align: center;
+      min-height: 100vh;
+      position: relative;
     }
 
     h1 {
@@ -91,6 +99,36 @@
       font-weight: bold;
       display: none;
     }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      background: #fff;
+      border-top: 1px solid #ddd;
+    }
+
+    footer nav {
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      padding: 0.5rem 0;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    footer button {
+      background: none;
+      border: none;
+      font-size: 1rem;
+      flex: 1;
+      padding: 5px;
+    }
+
+    footer .active {
+      font-weight: bold;
+    }
   </style>
 </head>
 <body>
@@ -114,19 +152,11 @@
     const fare = parseFloat(fareString.replace(/[^\d.]/g, ''));
     const pickup = "Your Location";
 
-    // Base fares
-    const baseFares = {
-      Moto: 115,
-      Auto: 198,
-      Cab: 345
-    };
-
-    // Check for priority ride
+    const baseFares = { Moto: 115, Auto: 198, Cab: 345 };
     const base = baseFares[ride];
     const expectedPriorityFare = base ? base * 1.25 : 0;
     const isPriority = Math.abs(fare - expectedPriorityFare) < 0.01;
 
-    // Show details
     document.getElementById("rideDetails").innerHTML = `
       <strong>Ride Type:</strong> ${ride}<br>
       <strong>Pickup:</strong> ${pickup}<br>
@@ -134,7 +164,6 @@
       <strong>Fare:</strong> ₹${fare.toFixed(2)}
     `;
 
-    // Animation end actions
     setTimeout(() => {
       document.getElementById("spinner").style.display = "none";
       document.getElementById("fullCircle").style.display = "block";
@@ -145,8 +174,20 @@
       }
     }, 2000);
   </script>
+
+  <script>
+    window.onload = function () {
+      const isDark = localStorage.getItem("dark-mode") === "true";
+      if (isDark) {
+        document.body.classList.add("dark");
+      } else {
+        document.body.classList.remove("dark");
+      }
+    };
+  </script>
+
   <footer>
-    <nav class="footer-nav">
+    <nav>
       <button class="nav-btn active" onclick="window.location.href='index.html'">🏠<br>Home</button>
       <button class="nav-btn" onclick="window.location.href='activity.html'">📋<br>Activity</button>
       <button class="nav-btn" onclick="window.location.href='profile.html'">👤<br>Account</button>
