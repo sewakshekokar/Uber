@@ -183,7 +183,6 @@
       color: black;
       border: 1px solid black;
     }
-
   </style>
 </head>
 <body>
@@ -203,7 +202,7 @@
   <!-- Modal -->
   <div id="cancelModal" class="modal">
     <div class="modal-content">
-      <p>100% penalty will be applied.<br>Do you want to cancel the ride?</p>
+      <p id="cancelMessage"></p>
       <button class="yes-btn" onclick="confirmCancel()">Yes</button>
       <button class="no-btn" onclick="redirectHome()">No</button>
     </div>
@@ -249,20 +248,20 @@
     }, 2000);
 
     function openModal() {
+      const message = isPriority
+        ? "<h3>Do you want to cancel the ride?</h3><br>100% penalty will be applied."
+        : "<h3>Do you want to cancel the ride?</h3>";
+      document.getElementById("cancelMessage").innerHTML = message;
       document.getElementById("cancelModal").style.display = "block";
     }
 
-    function closeModal() {
-      document.getElementById("cancelModal").style.display = "none";
-    }
-
     function confirmCancel() {
-      alert("Your ride has been cancelled with a 100% penalty.");
+      alert("Your ride has been cancelled.");
       window.location.href = "index.html";
     }
 
     function redirectHome() {
-      window.location.href = "index.html";
+      document.getElementById("cancelModal").style.display = "none";
     }
   </script>
 </body>
