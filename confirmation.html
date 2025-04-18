@@ -224,7 +224,15 @@
     const fare = parseFloat(fareString.replace(/[^\d.]/g, ''));
     const pickup = "Your Location";
 
-    const baseFares = { Moto: 115, Auto: 198, Cab: 345, Uber Go: 260,Go Sedan: 420,Go SUV: 480 };
+    const baseFares = {
+  "Moto": 115,
+  "Auto": 198,
+  "Cab": 345,
+  "Uber Go": 260,
+  "Go Sedan": 420,
+  "Go SUV": 480
+};
+
     const base = baseFares[ride];
     const expectedPriorityFare = base ? base * 1.25 : 0;
     const isPriority = Math.abs(fare - expectedPriorityFare) < 0.01;
