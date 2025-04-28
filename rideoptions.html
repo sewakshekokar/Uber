@@ -4,17 +4,61 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Choose Your Ride</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <style>
-    body {
-      font-family: Arial, sans-serif;
+    body, html {
       margin: 0;
-      background: #f2f2f2;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      background: #ddd; /* fallback color if map doesn't load */
+    }
+
+    .sheet {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      max-height: 90%;
+      background: white;
+      border-top-left-radius: 20px;
+      border-top-right-radius: 20px;
+      box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
+      transition: transform 0.3s ease;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .drag-handle {
+      width: 50px;
+      height: 6px;
+      background: #ccc;
+      border-radius: 3px;
+      margin: 10px auto;
+      cursor: grab;
+    }
+
+    .content {
+      overflow-y: auto;
       padding-bottom: 100px;
+      flex: 1;
     }
 
     h2 {
       font-weight: 700;
       margin: 16px;
+      font-size: 20px;
     }
 
     .ride-card {
@@ -69,15 +113,9 @@
     }
 
     #bottomBar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      z-index: 1000;
+      padding: 8px 16px;
       background: white;
       border-top: 1px solid #ccc;
-      padding: 8px;
-      box-sizing: border-box;
       display: none;
       flex-direction: column;
       gap: 8px;
@@ -126,6 +164,10 @@
       cursor: pointer;
     }
 
+    #priorityPopup, #overlay {
+      /* (same styles as your original code) */
+    }
+
     #priorityPopup {
       position: fixed;
       top: 30%;
@@ -139,18 +181,6 @@
       z-index: 999;
       text-align: center;
       min-width: 280px;
-    }
-
-    #priorityPopup h3 {
-      margin: 0;
-      font-size: 22px;
-      font-weight: 700;
-    }
-
-    #priorityPopup p {
-      margin-top: 10px;
-      font-size: 14px;
-      color: #555;
     }
 
     #overlay {
@@ -183,11 +213,60 @@
       color: black;
       border: 1px solid black;
     }
+    #map {
+      height: 100vh;
+      width: 100%;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+    }
+
+    /* Make rides section floating above map */
+    #rides, #overlay, #priorityPopup, #bottomBar, h2 {
+      position: relative;
+      z-index: 1000;
+    }
+    body, html {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    #map {
+      height: 100%;
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      background: #ddd;
+    }
   </style>
 </head>
+
 <body>
-  <h2>Choose a ride</h2>
-  <div id="rides"></div>
+  <div id="map"></div>
+
+  <div class="sheet" id="sheet">
+    <div class="drag-handle" id="handle"></div>
+    <div class="content">
+      <h2>Choose a ride</h2>
+      <div id="rides"></div>
+      <div id="bottomBar">
+        <div class="payment" onclick="window.location.href='payment.html'">
+          <div class="payment-left">
+            <img src="cash.png" alt="Cash">
+            <span>Cash</span>
+          </div>
+          <span class="arrow">›</span>
+        </div>
+        <button class="choose-btn" id="chooseBtn">Choose</button>
+      </div>
+    </div>
+  </div>
 
   <div id="overlay"></div>
   <div id="priorityPopup">
@@ -195,149 +274,194 @@
     <p>- Fare will be 25% higher than usual</p>
     <p>- No refund — 100% cancellation penalty</p>
     <p>- Driver cannot cancel ride once confirmed.</p>
-
-
-
     <button class="popup-btn yes" onclick="setPriority(true)">Yes</button>
     <button class="popup-btn no" onclick="setPriority(false)">No</button>
   </div>
 
-  <div id="bottomBar">
-    <div class="payment" onclick="window.location.href='payment.html'">
-      <div class="payment-left">
-        <img src="cash.png" alt="Cash">
-        <span>Cash</span>
-      </div>
-      <span class="arrow">›</span>
-    </div>
-    <button class="choose-btn" id="chooseBtn">Choose</button>
-  </div>
+<script>
+  // All your existing JavaScript here (copy your <script> code here)
+  const params = new URLSearchParams(window.location.search);
+  const drop = params.get('drop') || "";
+  let isPriority = false;
+  let selectedRide = null;
 
-  <script>
-    const params = new URLSearchParams(window.location.search);
-    const drop = params.get('drop') || "";
-    let isPriority = false;
-    let selectedRide = null;
+  const slogans = {
+    moto: "Quick & efficient",
+    auto: "Breezy local travel",
+    gosedan: "Comfortable Sedan",
+    gosuv: "Spacious for the family",
+    ubergp: "Affordable GoUber"
+  };
 
-    const slogans = {
-      moto: "Quick & efficient",
-      auto: "Breezy local travel",
-      gosedan: "Comfortable Sedan",
-      gosuv: "Spacious for the family",
-      ubergp: "Affordable GoUber"
+  const basePrices = {
+    moto: 115,
+    auto: 198,
+    gosedan: 420,
+    gosuv: 480,
+    ubergp: 260
+  };
+
+  const criticalKeywords = ["hospital", "station", "railway", "emergency", "clinic", "medical", "airport","health center"];
+  const isCritical = criticalKeywords.some(word => drop.toLowerCase().includes(word));
+
+  if (isCritical) {
+    document.getElementById("overlay").style.display = "block";
+    document.getElementById("priorityPopup").style.display = "block";
+  } else {
+    renderOptions();
+  }
+
+  function setPriority(choice) {
+    isPriority = choice;
+    document.getElementById("overlay").style.display = "none";
+    document.getElementById("priorityPopup").style.display = "none";
+    renderOptions();
+  }
+
+  function renderOptions() {
+    const container = document.getElementById("rides");
+    container.innerHTML = "";
+
+    const sortedRides = Object.entries(basePrices).sort((a, b) => a[1] - b[1]);
+    const times = sortedRides.map(() => Math.floor(Math.random() * 7) + 2);
+    const minTime = Math.min(...times);
+
+    let defaultIndex = 0;
+    let cheapest = Infinity;
+
+    sortedRides.forEach(([type, price], index) => {
+      if (price < cheapest) {
+        cheapest = price;
+        defaultIndex = index;
+      }
+    });
+
+    sortedRides.forEach(([type, price], index) => {
+      const arrivalTime = times[index];
+      const isFastest = arrivalTime === minTime;
+      const finalPrice = isPriority ? (price * 1.25).toFixed(2) : price.toFixed(2);
+      const fastTag = isFastest ? `<span class="fast-tag">Faster</span>` : '';
+
+      const card = document.createElement("div");
+      card.className = "ride-card";
+      card.innerHTML = 
+        `<img src="${type}.png" alt="${type}">
+        <div class="ride-info">
+          <div class="ride-title">${formatTitle(type)} ${fastTag}</div>
+          <div class="ride-slogan">${slogans[type]}</div>
+          <div style="font-size: 14px; color: #555;">${getCurrentTime()} · ${arrivalTime} min away</div>
+          <div class="ride-price">₹${finalPrice}</div>
+        </div>`;
+
+      card.onclick = () => selectCard(card, type);
+      container.appendChild(card);
+    });
+
+    const allCards = document.querySelectorAll(".ride-card");
+    if (allCards.length > 0) {
+      selectCard(allCards[defaultIndex], sortedRides[defaultIndex][0]);
+    }
+  }
+
+  function selectCard(card, type) {
+    document.querySelectorAll('.ride-card').forEach(c => c.classList.remove('selected'));
+    card.classList.add('selected');
+    selectedRide = formatTitle(type);
+
+    document.getElementById("chooseBtn").textContent = `Choose ${formatTitle(type)}`;
+
+    document.getElementById("chooseBtn").onclick = () => {
+      const fare = document.querySelector(".ride-card.selected .ride-price").textContent;
+      const query = new URLSearchParams({
+        ride: selectedRide,
+        drop: drop,
+        fare: fare
+      }).toString();
+      window.location.href = `confirmation.html?${query}`;
     };
 
-    const basePrices = {
-      moto: 115,
-      auto: 198,
-      gosedan: 420,
-      gosuv: 480,
-      ubergp: 260
-    };
+    document.getElementById("bottomBar").style.display = "flex";
+  }
 
-    const criticalKeywords = ["hospital", "station", "railway", "emergency", "clinic", "medical", "airport","health center"];
-    const isCritical = criticalKeywords.some(word => drop.toLowerCase().includes(word));
+  function getCurrentTime() {
+    const now = new Date();
+    let hours = now.getHours();
+    let minutes = now.getMinutes();
+    const ampm = hours >= 12 ? 'pm' : 'am';
+    hours = hours % 12;
+    hours = hours ? hours : 12;
+    minutes = minutes < 10 ? '0' + minutes : minutes;
+    return `${hours}:${minutes}${ampm}`;
+  }
 
-    if (isCritical) {
-      document.getElementById("overlay").style.display = "block";
-      document.getElementById("priorityPopup").style.display = "block";
-    } else {
-      renderOptions();
+  function formatTitle(type) {
+    switch (type) {
+      case 'gosedan': return 'Go Sedan';
+      case 'gosuv': return 'Go SUV';
+      case 'ubergp': return 'Uber Go';
+      default: return type.charAt(0).toUpperCase() + type.slice(1);
     }
+  }
 
-    function setPriority(choice) {
-      isPriority = choice;
-      document.getElementById("overlay").style.display = "none";
-      document.getElementById("priorityPopup").style.display = "none";
-      renderOptions();
-    }
+  // Dragging the sheet up and down
+  const sheet = document.getElementById('sheet');
+  const handle = document.getElementById('handle');
+  let startY, startHeight;
 
-    function renderOptions() {
-      const container = document.getElementById("rides");
-      container.innerHTML = "";
+  handle.addEventListener('mousedown', startDrag);
+  handle.addEventListener('touchstart', startDrag);
 
-      const sortedRides = Object.entries(basePrices).sort((a, b) => a[1] - b[1]);
-      const times = sortedRides.map(() => Math.floor(Math.random() * 7) + 2);
-      const minTime = Math.min(...times);
+  function startDrag(e) {
+    e.preventDefault();
+    startY = e.touches ? e.touches[0].clientY : e.clientY;
+    startHeight = sheet.getBoundingClientRect().height;
+    document.addEventListener('mousemove', onDrag);
+    document.addEventListener('mouseup', endDrag);
+    document.addEventListener('touchmove', onDrag);
+    document.addEventListener('touchend', endDrag);
+  }
 
-      let defaultIndex = 0;
-      let cheapest = Infinity;
+  function onDrag(e) {
+    const y = e.touches ? e.touches[0].clientY : e.clientY;
+    const dy = startY - y;
+    const newHeight = Math.min(window.innerHeight, Math.max(150, startHeight + dy));
+    sheet.style.height = `${newHeight}px`;
+  }
 
-      sortedRides.forEach(([type, price], index) => {
-        if (price < cheapest) {
-          cheapest = price;
-          defaultIndex = index;
-        }
-      });
+  function endDrag() {
+    document.removeEventListener('mousemove', onDrag);
+    document.removeEventListener('mouseup', endDrag);
+    document.removeEventListener('touchmove', onDrag);
+    document.removeEventListener('touchend', endDrag);
+  }
+</script>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+  // Initialize the map
+  const map = L.map('map').setView([19.0760, 72.8777], 13); // Default Mumbai coordinates
 
-      sortedRides.forEach(([type, price], index) => {
-        const arrivalTime = times[index];
-        const isFastest = arrivalTime === minTime;
-        const finalPrice = isPriority ? (price * 1.25).toFixed(2) : price.toFixed(2);
-        const fastTag = isFastest ? `<span class="fast-tag">Faster</span>` : '';
+  // Load OpenStreetMap tiles
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
 
-        const card = document.createElement("div");
-        card.className = "ride-card";
-        card.innerHTML = 
-          `<img src="${type}.png" alt="${type}">
-          <div class="ride-info">
-            <div class="ride-title">${formatTitle(type)} ${fastTag}</div>
-            <div class="ride-slogan">${slogans[type]}</div>
-            <div style="font-size: 14px; color: #555;">${getCurrentTime()} · ${arrivalTime} min away</div>
-            <div class="ride-price">₹${finalPrice}</div>
-          </div>`;
+  // Current location marker
+  const currentLocation = [26.51462672871299, 80.23520217139462]; // Replace with actual current location coordinates
+  const currentMarker = L.marker(currentLocation).addTo(map);
+  currentMarker.bindPopup('Current Location').openPopup();
 
-        card.onclick = () => selectCard(card, type);
-        container.appendChild(card);
-      });
+  // Destination location marker
+  const destinationLocation = [26.498985205725464, 80.25898845414648]; // Replace with actual destination coordinates
+  const destinationMarker = L.marker(destinationLocation).addTo(map);
+  destinationMarker.bindPopup('Destination Location').openPopup();
 
-      const allCards = document.querySelectorAll(".ride-card");
-      if (allCards.length > 0) {
-        selectCard(allCards[defaultIndex], sortedRides[defaultIndex][0]);
-      }
-    }
+  // Add a polyline between the current and destination locations
+  const route = [currentLocation, destinationLocation];
+  L.polyline(route, {color: 'blue'}).addTo(map);
 
-    function selectCard(card, type) {
-      document.querySelectorAll('.ride-card').forEach(c => c.classList.remove('selected'));
-      card.classList.add('selected');
-      selectedRide = formatTitle(type);
+  // Make sure both markers and the route are visible
+  map.fitBounds(route);
+</script>
 
-      // Update the "Choose" button text based on the selected ride
-      document.getElementById("chooseBtn").textContent = `Choose ${formatTitle(type)}`;
-
-      document.getElementById("chooseBtn").onclick = () => {
-        const fare = document.querySelector(".ride-card.selected .ride-price").textContent;
-        const query = new URLSearchParams({
-          ride: selectedRide,
-          drop: drop,
-          fare: fare
-        }).toString();
-        window.location.href = `confirmation.html?${query}`;
-      };
-
-      document.getElementById("bottomBar").style.display = "flex";
-    }
-
-    function getCurrentTime() {
-      const now = new Date();
-      let hours = now.getHours();
-      let minutes = now.getMinutes();
-      const ampm = hours >= 12 ? 'pm' : 'am';
-      hours = hours % 12;
-      hours = hours ? hours : 12;
-      minutes = minutes < 10 ? '0' + minutes : minutes;
-      return `${hours}:${minutes}${ampm}`;
-    }
-
-    function formatTitle(type) {
-      switch (type) {
-        case 'gosedan': return 'Go Sedan';
-        case 'gosuv': return 'Go SUV';
-        case 'ubergp': return 'Uber Go';
-        default: return type.charAt(0).toUpperCase() + type.slice(1);
-      }
-    }
-  </script>
-  
 </body>
 </html>
