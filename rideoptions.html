@@ -272,6 +272,18 @@
       .drag-handle {
         margin: 8px auto;
       }
+      
+    }
+    .content {
+      /* Existing styles... */
+      touch-action: none;
+      will-change: transform;
+      user-select: none; /* Prevents text selection while dragging */
+      -webkit-user-drag: none; /* Prevents image ghost dragging on Safari */
+      cursor: grab;
+    }
+    .content.dragging {
+      cursor: grabbing;
     }
   </style>
 </head>
@@ -346,12 +358,23 @@
     }
 
     // Touch events
+    // Drag start
     dragHandle.addEventListener('touchstart', (e) => {
       isDragging = true;
       startY = e.touches[0].clientY;
       startTranslateY = getTranslateY(content);
+      content.classList.add('dragging'); // 👈 Add this
       e.preventDefault();
     });
+
+    dragHandle.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startY = e.clientY;
+      startTranslateY = getTranslateY(content);
+      content.classList.add('dragging'); // 👈 Add this
+      e.preventDefault();
+    });
+
 
     // Mouse events
     dragHandle.addEventListener('mousedown', (e) => {
@@ -387,22 +410,22 @@
     });
 
     // Common end handler
+    // Drag end
     function handleEnd() {
       if (!isDragging) return;
       isDragging = false;
+      content.classList.remove('dragging'); // 👈 Add this
       
       const currentTranslateY = getTranslateY(content);
       const contentHeight = content.offsetHeight;
       const maxTranslateY = contentHeight - 100;
 
       content.style.transition = 'transform 0.3s ease';
-      
       if (currentTranslateY > maxTranslateY / 2) {
         setTranslateY(content, maxTranslateY);
       } else {
         setTranslateY(content, 0);
       }
-
       setTimeout(() => {
         content.style.transition = 'none';
       }, 300);
