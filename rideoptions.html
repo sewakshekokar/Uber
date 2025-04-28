@@ -456,6 +456,8 @@
       ubergp: 260
     };
 
+    const rideOrder = ['moto', 'auto', 'ubergp', 'gosedan', 'gosuv']; // Explicit order for all rides
+
     const criticalKeywords = ["hospital", "station", "railway", "emergency", "clinic", "medical", "airport", "health center"];
     const isCritical = criticalKeywords.some(word => drop.toLowerCase().includes(word));
 
@@ -477,21 +479,22 @@
       const container = document.getElementById("rides");
       container.innerHTML = "";
 
-      const sortedRides = Object.entries(basePrices).sort((a, b) => a[1] - b[1]);
-      const times = sortedRides.map(() => Math.floor(Math.random() * 7) + 2);
+      const times = rideOrder.map(() => Math.floor(Math.random() * 7) + 2);
       const minTime = Math.min(...times);
 
       let defaultIndex = 0;
       let cheapest = Infinity;
 
-      sortedRides.forEach(([type, price], index) => {
+      rideOrder.forEach((type, index) => {
+        const price = basePrices[type];
         if (price < cheapest) {
           cheapest = price;
           defaultIndex = index;
         }
       });
 
-      sortedRides.forEach(([type, price], index) => {
+      rideOrder.forEach((type, index) => {
+        const price = basePrices[type];
         const arrivalTime = times[index];
         const isFastest = arrivalTime === minTime;
         const finalPrice = isPriority ? (price * 1.25).toFixed(2) : price.toFixed(2);
@@ -514,7 +517,7 @@
 
       const allCards = document.querySelectorAll(".ride-card");
       if (allCards.length > 0) {
-        selectCard(allCards[defaultIndex], sortedRides[defaultIndex][0]);
+        selectCard(allCards[defaultIndex], rideOrder[defaultIndex]);
       }
     }
 
