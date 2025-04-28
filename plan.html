@@ -129,7 +129,7 @@
 </head>
 <body>
   <header class="plan-header">
-    <button onclick="location.href='index.html'">←</button>
+    <button onclick="history.back()">←</button>
     <h2>Plan your ride</h2>
   </header>
 
@@ -138,13 +138,12 @@
       <div class="location-row">
         <span class="dot-icon">📍</span>
         <input id="pickupInput" type="text" placeholder="Enter pickup location" autocomplete="off">
-        <div id="pickupSuggestions" class="suggestions"></div> <!-- New suggestion box for pickup -->
       </div>
       <hr class="separator">
       <div class="location-row">
         <span class="dot-icon">◼️</span>
         <input id="dropInput" type="text" placeholder="Where to?" autocomplete="off">
-        <div id="dropSuggestions" class="suggestions"></div> <!-- New suggestion box for drop -->
+        <div id="suggestions" class="suggestions"></div>
       </div>
     </div>
 
@@ -187,10 +186,9 @@
 
     const pickupInput = document.getElementById("pickupInput");
     const dropInput = document.getElementById("dropInput");
-    const pickupSuggestionsBox = document.getElementById("pickupSuggestions");
-    const dropSuggestionsBox = document.getElementById("dropSuggestions");
+    const suggestionsBox = document.getElementById("suggestions");
 
-    function fetchSuggestions(inputElement, suggestionsBox, callback) {
+    function fetchSuggestions(inputElement, callback) {
       const query = inputElement.value.trim();
       if (query.length < 2) {
         suggestionsBox.innerHTML = "";
@@ -234,10 +232,8 @@
         });
     }
 
-    // updated event listeners
-    pickupInput.addEventListener("input", () => fetchSuggestions(pickupInput, pickupSuggestionsBox));
-    dropInput.addEventListener("input", () => fetchSuggestions(dropInput, dropSuggestionsBox));
-
+    pickupInput.addEventListener("input", () => fetchSuggestions(pickupInput));
+    dropInput.addEventListener("input", () => fetchSuggestions(dropInput));
 
     function redirectToOptions(dropLocation) {
       const pickup = pickupInput.value.trim();
