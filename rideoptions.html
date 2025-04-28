@@ -24,188 +24,6 @@
     }
 
     .content {
-      position: absolute;
-      bottom: 0;
-      width: 100%;
-      background: white;
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
-      box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
-      z-index: 1000;
-      max-height: 70%;
-      overflow-y: auto;
-      padding-bottom: 120px;
-    }
-
-    .drag-handle {
-      width: 50px;
-      height: 4px;
-      background: #ccc;
-      border-radius: 2px;
-      margin: 12px auto;
-    }
-
-    h2 {
-      font-weight: 700;
-      margin: 0 16px 16px;
-      font-size: 20px;
-    }
-
-    .ride-card {
-      background: white;
-      border: 1px solid #eee;
-      border-radius: 12px;
-      padding: 16px;
-      margin: 0 16px 12px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .ride-card.selected {
-      border: 2px solid #000;
-    }
-
-    .ride-card img {
-      width: 60px;
-      height: 40px;
-      object-fit: contain;
-    }
-
-    .ride-info {
-      flex: 1;
-    }
-
-    .ride-title {
-      font-size: 16px;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-    }
-
-    .ride-slogan {
-      font-size: 13px;
-      color: #666;
-      margin: 4px 0;
-    }
-
-    .ride-time {
-      font-size: 14px;
-      color: #555;
-    }
-
-    .ride-price {
-      font-size: 16px;
-      font-weight: 500;
-    }
-
-    .fast-tag {
-      display: inline-block;
-      background: #2968ef;
-      color: white;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 11px;
-      margin-left: 8px;
-    }
-
-    #bottomBar {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      background: white;
-      border-top: 1px solid #eee;
-      padding: 12px 16px;
-      box-sizing: border-box;
-      display: none;
-      z-index: 1001;
-    }
-
-    .payment-method {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: white;
-      padding: 12px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    }
-
-    .payment-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .payment-left img {
-      width: 24px;
-      height: 24px;
-    }
-
-    .choose-btn {
-      width: 100%;
-      background: #000;
-      color: white;
-      border: none;
-      font-size: 16px;
-      font-weight: 500;
-      padding: 14px;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    /* Popup styles */
-    #priorityPopup {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-      z-index: 1002;
-      width: 80%;
-      max-width: 300px;
-      display: none;
-    }
-
-    #overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0,0,0,0.5);
-      z-index: 1001;
-      display: none;
-    }
-
-    .popup-btn {
-      padding: 10px 20px;
-      margin: 10px 5px 0;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    .yes {
-      background: #000;
-      color: white;
-      border: none;
-    }
-
-    .no {
-      background: white;
-      color: #000;
-      border: 1px solid #ddd;
-    }
-    .content {
       position: fixed;
       bottom: 0;
       width: 100%;
@@ -234,6 +52,190 @@
       touch-action: none;
     }
 
+    h2 {
+      font-weight: 700;
+      margin: 0 16px 16px;
+      font-size: 20px;
+    }
+
+    .ride-card {
+      background: white;
+      border: 2px solid transparent;
+      border-radius: 16px;
+      padding: 16px;
+      margin: 0 16px 12px;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .ride-card.selected {
+      border-color: black;
+    }
+
+    .ride-card img {
+      width: 60px;
+      height: 40px;
+      object-fit: contain;
+    }
+
+    .ride-info {
+      flex: 1;
+    }
+
+    .ride-title {
+      font-size: 18px;
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+    }
+
+    .ride-slogan {
+      font-size: 13px;
+      color: #999;
+      margin: 4px 0;
+    }
+
+    .ride-time {
+      font-size: 14px;
+      color: #555;
+    }
+
+    .ride-price {
+      font-size: 16px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .fast-tag {
+      display: inline-block;
+      background: #2968ef;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+      margin-left: 8px;
+    }
+
+    #bottomBar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1001;
+      background: white;
+      border-top: 1px solid #ccc;
+      padding: 8px;
+      box-sizing: border-box;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .payment {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: white;
+      color: black;
+      font-size: 16px;
+      font-weight: 500;
+      border: none;
+      padding: 12px;
+      border-radius: 12px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      cursor: pointer;
+    }
+
+    .payment-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .payment img {
+      width: 24px;
+      height: 24px;
+    }
+
+    .arrow {
+      font-size: 20px;
+      color: #555;
+    }
+
+    .choose-btn {
+      width: 100%;
+      background: black;
+      color: white;
+      border: none;
+      font-size: 16px;
+      font-weight: 500;
+      padding: 14px;
+      border-radius: 12px;
+      cursor: pointer;
+    }
+
+    #priorityPopup {
+      position: fixed;
+      top: 30%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: #fff;
+      padding: 24px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.2);
+      border-radius: 12px;
+      display: none;
+      z-index: 1002;
+      text-align: center;
+      min-width: 280px;
+    }
+
+    #priorityPopup h3 {
+      margin: 0;
+      font-size: 22px;
+      font-weight: 700;
+    }
+
+    #priorityPopup p {
+      margin-top: 10px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    #overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.4);
+      display: none;
+      z-index: 1001;
+    }
+
+    .popup-btn {
+      margin-top: 16px;
+      padding: 10px 20px;
+      font-size: 14px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .yes {
+      background: black;
+      color: white;
+      margin-right: 10px;
+    }
+
+    .no {
+      background: white;
+      color: black;
+      border: 1px solid black;
+    }
+
     @media (max-width: 480px) {
       .content {
         height: 85vh;
@@ -251,7 +253,7 @@
       }
 
       .ride-title {
-        font-size: 14px;
+        font-size: 16px;
       }
 
       .ride-slogan {
@@ -259,7 +261,7 @@
       }
 
       .ride-time, .ride-price {
-        font-size: 12px;
+        font-size: 14px;
       }
 
       h2 {
@@ -270,6 +272,7 @@
       .drag-handle {
         margin: 8px auto;
       }
+    }
   </style>
 </head>
 <body>
@@ -282,12 +285,12 @@
   </div>
 
   <div id="bottomBar">
-    <div class="payment-method">
+    <div class="payment" onclick="window.location.href='payment.html'">
       <div class="payment-left">
         <img src="cash.png" alt="Cash">
         <span>Cash</span>
       </div>
-      <span>›</span>
+      <span class="arrow">›</span>
     </div>
     <button class="choose-btn" id="chooseBtn">Choose</button>
   </div>
@@ -295,16 +298,37 @@
   <div id="overlay"></div>
   <div id="priorityPopup">
     <h3>Prioritize this ride?</h3>
-    <p>- Fare will be 25% higher</p>
-    <p>- No cancellation refund</p>
-    <p>- Driver cannot cancel</p>
+    <p>- Fare will be 25% higher than usual</p>
+    <p>- No refund — 100% cancellation penalty</p>
+    <p>- Driver cannot cancel ride once confirmed.</p>
+
     <button class="popup-btn yes" onclick="setPriority(true)">Yes</button>
     <button class="popup-btn no" onclick="setPriority(false)">No</button>
   </div>
-  <script>
-    // ... (keep map initialization and ride logic) ... 
 
-    // Add draggable panel functionality
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    // Initialize map
+    const map = L.map('map').setView([19.0760, 72.8777], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors'
+    }).addTo(map);
+
+    // Add markers
+    const currentLocation = [19.0760, 72.8777];
+    const destination = [19.0860, 72.8877];
+    
+    L.marker(currentLocation).addTo(map)
+      .bindPopup('Your location')
+      .openPopup();
+      
+    L.marker(destination).addTo(map)
+      .bindPopup('Destination');
+      
+    L.polyline([currentLocation, destination], {color: 'blue'}).addTo(map);
+    map.fitBounds([currentLocation, destination]);
+
+    // Draggable panel functionality
     const content = document.querySelector('.content');
     const dragHandle = document.querySelector('.drag-handle');
     let isDragging = false;
@@ -387,30 +411,6 @@
     document.addEventListener('touchend', handleEnd);
     document.addEventListener('mouseup', handleEnd);
 
-    // ... (rest of the original script) ...
-  </script>
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script>
-    // Initialize map
-    const map = L.map('map').setView([19.0760, 72.8777], 14);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
-
-    // Add markers
-    const currentLocation = [19.0760, 72.8777];
-    const destination = [19.0860, 72.8877];
-    
-    L.marker(currentLocation).addTo(map)
-      .bindPopup('Your location')
-      .openPopup();
-      
-    L.marker(destination).addTo(map)
-      .bindPopup('Destination');
-      
-    L.polyline([currentLocation, destination], {color: 'blue'}).addTo(map);
-    map.fitBounds([currentLocation, destination]);
-
     // Ride selection logic
     const params = new URLSearchParams(window.location.search);
     const drop = params.get('drop') || "";
@@ -422,7 +422,7 @@
       auto: "Breezy local travel",
       gosedan: "Comfortable Sedan",
       gosuv: "Spacious for the family",
-      ubergp: "Affordable ride"
+      ubergp: "Affordable GoUber"
     };
 
     const basePrices = {
@@ -433,7 +433,7 @@
       ubergp: 260
     };
 
-    const criticalKeywords = ["hospital", "station", "railway", "emergency", "clinic", "medical", "airport"];
+    const criticalKeywords = ["hospital", "station", "railway", "emergency", "clinic", "medical", "airport", "health center"];
     const isCritical = criticalKeywords.some(word => drop.toLowerCase().includes(word));
 
     if (isCritical) {
@@ -458,18 +458,28 @@
       const times = sortedRides.map(() => Math.floor(Math.random() * 7) + 2);
       const minTime = Math.min(...times);
 
+      let defaultIndex = 0;
+      let cheapest = Infinity;
+
+      sortedRides.forEach(([type, price], index) => {
+        if (price < cheapest) {
+          cheapest = price;
+          defaultIndex = index;
+        }
+      });
+
       sortedRides.forEach(([type, price], index) => {
         const arrivalTime = times[index];
         const isFastest = arrivalTime === minTime;
-        const finalPrice = isPriority ? Math.round(price * 1.25) : price;
-        const fastTag = isFastest ? '<span class="fast-tag">Fastest</span>' : '';
+        const finalPrice = isPriority ? (price * 1.25).toFixed(2) : price.toFixed(2);
+        const fastTag = isFastest ? `<span class="fast-tag">Faster</span>` : '';
 
         const card = document.createElement("div");
         card.className = "ride-card";
-        card.innerHTML = `
-          <img src="${type}.png" alt="${type}">
+        card.innerHTML = 
+          `<img src="${type}.png" alt="${type}">
           <div class="ride-info">
-            <div class="ride-title">${formatTitle(type)}${fastTag}</div>
+            <div class="ride-title">${formatTitle(type)} ${fastTag}</div>
             <div class="ride-slogan">${slogans[type]}</div>
             <div class="ride-time">${getCurrentTime()} · ${arrivalTime} min away</div>
             <div class="ride-price">₹${finalPrice}</div>
@@ -479,32 +489,32 @@
         container.appendChild(card);
       });
 
-      // Select the first ride by default
-      const firstCard = container.querySelector(".ride-card");
-      if (firstCard) selectCard(firstCard, sortedRides[0][0]);
+      const allCards = document.querySelectorAll(".ride-card");
+      if (allCards.length > 0) {
+        selectCard(allCards[defaultIndex], sortedRides[defaultIndex][0]);
+      }
     }
 
     function selectCard(card, type) {
       document.querySelectorAll('.ride-card').forEach(c => c.classList.remove('selected'));
       card.classList.add('selected');
       selectedRide = formatTitle(type);
-      
-      document.getElementById("chooseBtn").textContent = `Choose ${selectedRide}`;
-      document.getElementById("bottomBar").style.display = "block";
-    }
 
-    document.getElementById("chooseBtn").onclick = function() {
-      if (!selectedRide) return;
-      
-      const fare = document.querySelector(".ride-card.selected .ride-price").textContent;
-      const query = new URLSearchParams({
-        ride: selectedRide,
-        drop: drop,
-        fare: fare.replace('₹', '')
-      }).toString();
-      
-      window.location.href = `confirmation.html?${query}`;
-    };
+      // Update the "Choose" button text based on the selected ride
+      document.getElementById("chooseBtn").textContent = `Choose ${formatTitle(type)}`;
+
+      document.getElementById("chooseBtn").onclick = () => {
+        const fare = document.querySelector(".ride-card.selected .ride-price").textContent;
+        const query = new URLSearchParams({
+          ride: selectedRide,
+          drop: drop,
+          fare: fare
+        }).toString();
+        window.location.href = `confirmation.html?${query}`;
+      };
+
+      document.getElementById("bottomBar").style.display = "flex";
+    }
 
     function getCurrentTime() {
       const now = new Date();
