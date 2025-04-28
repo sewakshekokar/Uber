@@ -138,12 +138,13 @@
       <div class="location-row">
         <span class="dot-icon">📍</span>
         <input id="pickupInput" type="text" placeholder="Enter pickup location" autocomplete="off">
+        <div id="pickupSuggestions" class="suggestions"></div> <!-- New suggestion box for pickup -->
       </div>
       <hr class="separator">
       <div class="location-row">
         <span class="dot-icon">◼️</span>
         <input id="dropInput" type="text" placeholder="Where to?" autocomplete="off">
-        <div id="suggestions" class="suggestions"></div>
+        <div id="dropSuggestions" class="suggestions"></div> <!-- New suggestion box for drop -->
       </div>
     </div>
 
@@ -186,9 +187,10 @@
 
     const pickupInput = document.getElementById("pickupInput");
     const dropInput = document.getElementById("dropInput");
-    const suggestionsBox = document.getElementById("suggestions");
+    const pickupSuggestionsBox = document.getElementById("pickupSuggestions");
+    const dropSuggestionsBox = document.getElementById("dropSuggestions");
 
-    function fetchSuggestions(inputElement, callback) {
+    function fetchSuggestions(inputElement, suggestionsBox, callback) {
       const query = inputElement.value.trim();
       if (query.length < 2) {
         suggestionsBox.innerHTML = "";
@@ -232,8 +234,10 @@
         });
     }
 
-    pickupInput.addEventListener("input", () => fetchSuggestions(pickupInput));
-    dropInput.addEventListener("input", () => fetchSuggestions(dropInput));
+    // updated event listeners
+    pickupInput.addEventListener("input", () => fetchSuggestions(pickupInput, pickupSuggestionsBox));
+    dropInput.addEventListener("input", () => fetchSuggestions(dropInput, dropSuggestionsBox));
+
 
     function redirectToOptions(dropLocation) {
       const pickup = pickupInput.value.trim();
