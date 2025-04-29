@@ -1,4 +1,4 @@
-i want that the option in the choose ride option should be scroollable i am giving you my code make change in that and do not chnage in the function of the code :<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -33,14 +33,19 @@ i want that the option in the choose ride option should be scroollable i am givi
       border-top-right-radius: 20px;
       box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
       z-index: 1000;
-      overflow-y: auto;
-      touch-action: none;
       transform: translateY(0);
       transition: transform 0.3s ease;
+      display: flex;
+      flex-direction: column;
     }
 
     .content.collapsed {
       transform: translateY(calc(100% - 100px));
+    }
+
+    .drag-handle-container {
+      padding: 12px 0;
+      touch-action: none;
     }
 
     .drag-handle {
@@ -48,14 +53,25 @@ i want that the option in the choose ride option should be scroollable i am givi
       height: 4px;
       background: #ccc;
       border-radius: 2px;
-      margin: 12px auto;
+      margin: 0 auto;
       touch-action: none;
+    }
+
+    .content-header {
+      padding: 0 16px 16px;
     }
 
     h2 {
       font-weight: 700;
-      margin: 0 16px 16px;
+      margin: 0;
       font-size: 20px;
+    }
+
+    .rides-container {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch; /* For smooth scrolling on iOS */
+      padding: 0 16px 16px;
     }
 
     .ride-card {
@@ -63,7 +79,7 @@ i want that the option in the choose ride option should be scroollable i am givi
       border: 2px solid transparent;
       border-radius: 16px;
       padding: 16px;
-      margin: 0 16px 12px;
+      margin: 0 0 12px;
       display: flex;
       align-items: center;
       gap: 20px;
@@ -243,7 +259,7 @@ i want that the option in the choose ride option should be scroollable i am givi
 
       .ride-card {
         padding: 12px;
-        margin: 0 12px 8px;
+        margin: 0 0 8px;
         gap: 12px;
       }
 
@@ -266,23 +282,19 @@ i want that the option in the choose ride option should be scroollable i am givi
 
       h2 {
         font-size: 18px;
-        margin: 0 12px 12px;
+        margin: 0 0 12px;
       }
-
-      .drag-handle {
-        margin: 8px auto;
-      }
-      
     }
-    .content {
-      /* Existing styles... */
+
+    .drag-handle-container {
       touch-action: none;
       will-change: transform;
       user-select: none; /* Prevents text selection while dragging */
       -webkit-user-drag: none; /* Prevents image ghost dragging on Safari */
       cursor: grab;
     }
-    .content.dragging {
+
+    .drag-handle-container.dragging {
       cursor: grabbing;
     }
   </style>
@@ -291,9 +303,13 @@ i want that the option in the choose ride option should be scroollable i am givi
   <div id="map"></div>
   
   <div class="content">
-    <div class="drag-handle"></div>
-    <h2>Choose a ride</h2>
-    <div id="rides"></div>
+    <div class="drag-handle-container">
+      <div class="drag-handle"></div>
+    </div>
+    <div class="content-header">
+      <h2>Choose a ride</h2>
+    </div>
+    <div class="rides-container" id="rides"></div>
   </div>
 
   <div id="bottomBar">
@@ -342,7 +358,7 @@ i want that the option in the choose ride option should be scroollable i am givi
 
     // Draggable panel functionality
     const content = document.querySelector('.content');
-    const dragHandle = document.querySelector('.drag-handle');
+    const dragHandleContainer = document.querySelector('.drag-handle-container');
     let isDragging = false;
     let startY = 0;
     let startTranslateY = 0;
@@ -359,28 +375,19 @@ i want that the option in the choose ride option should be scroollable i am givi
 
     // Touch events
     // Drag start
-    dragHandle.addEventListener('touchstart', (e) => {
+    dragHandleContainer.addEventListener('touchstart', (e) => {
       isDragging = true;
       startY = e.touches[0].clientY;
       startTranslateY = getTranslateY(content);
-      content.classList.add('dragging'); // 👈 Add this
+      dragHandleContainer.classList.add('dragging');
       e.preventDefault();
     });
 
-    dragHandle.addEventListener('mousedown', (e) => {
+    dragHandleContainer.addEventListener('mousedown', (e) => {
       isDragging = true;
       startY = e.clientY;
       startTranslateY = getTranslateY(content);
-      content.classList.add('dragging'); // 👈 Add this
-      e.preventDefault();
-    });
-
-
-    // Mouse events
-    dragHandle.addEventListener('mousedown', (e) => {
-      isDragging = true;
-      startY = e.clientY;
-      startTranslateY = getTranslateY(content);
+      dragHandleContainer.classList.add('dragging');
       e.preventDefault();
     });
 
@@ -400,21 +407,20 @@ i want that the option in the choose ride option should be scroollable i am givi
     // Touch move
     document.addEventListener('touchmove', (e) => {
       handleMove(e.touches[0].clientY);
-      e.preventDefault();
-    });
+      if (isDragging) e.preventDefault();
+    }, { passive: false });
 
     // Mouse move
     document.addEventListener('mousemove', (e) => {
       handleMove(e.clientY);
-      e.preventDefault();
+      if (isDragging) e.preventDefault();
     });
 
     // Common end handler
-    // Drag end
     function handleEnd() {
       if (!isDragging) return;
       isDragging = false;
-      content.classList.remove('dragging'); // 👈 Add this
+      dragHandleContainer.classList.remove('dragging');
       
       const currentTranslateY = getTranslateY(content);
       const contentHeight = content.offsetHeight;
@@ -427,7 +433,7 @@ i want that the option in the choose ride option should be scroollable i am givi
         setTranslateY(content, 0);
       }
       setTimeout(() => {
-        content.style.transition = 'none';
+        content.style.transition = '';
       }, 300);
     }
 
