@@ -33,11 +33,12 @@
       border-top-right-radius: 20px;
       box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
       z-index: 1000;
-      transform: translateY(0);
-      transition: transform 0.3s ease;
+      transform: translateY(0) !important; /* <- Force it to stay at top */
+      transition: none !important;         /* <- Remove animation effect */
       display: flex;
       flex-direction: column;
     }
+
 
     .content.collapsed {
       transform: translateY(calc(100% - 100px));
@@ -382,21 +383,21 @@
 
     // Touch events
     // Drag start
-    dragHandleContainer.addEventListener('touchstart', (e) => {
-      isDragging = true;
-      startY = e.touches[0].clientY;
-      startTranslateY = getTranslateY(content);
-      dragHandleContainer.classList.add('dragging');
-      e.preventDefault();
-    });
+    // dragHandleContainer.addEventListener('touchstart', (e) => {
+    //   isDragging = true;
+    //   startY = e.touches[0].clientY;
+    //   startTranslateY = getTranslateY(content);
+    //   dragHandleContainer.classList.add('dragging');
+    //   e.preventDefault();
+    // });
 
-    dragHandleContainer.addEventListener('mousedown', (e) => {
-      isDragging = true;
-      startY = e.clientY;
-      startTranslateY = getTranslateY(content);
-      dragHandleContainer.classList.add('dragging');
-      e.preventDefault();
-    });
+    // dragHandleContainer.addEventListener('mousedown', (e) => {
+    //   isDragging = true;
+    //   startY = e.clientY;
+    //   startTranslateY = getTranslateY(content);
+    //   dragHandleContainer.classList.add('dragging');
+    //   e.preventDefault();
+    // });
 
     // Common move handler
     function handleMove(currentY) {
@@ -412,16 +413,16 @@
     }
 
     // Touch move
-    document.addEventListener('touchmove', (e) => {
-      handleMove(e.touches[0].clientY);
-      if (isDragging) e.preventDefault();
-    }, { passive: false });
+    // document.addEventListener('touchmove', (e) => {
+    //   handleMove(e.touches[0].clientY);
+    //   if (isDragging) e.preventDefault();
+    // }, { passive: false });
 
-    // Mouse move
-    document.addEventListener('mousemove', (e) => {
-      handleMove(e.clientY);
-      if (isDragging) e.preventDefault();
-    });
+    // // Mouse move
+    // document.addEventListener('mousemove', (e) => {
+    //   handleMove(e.clientY);
+    //   if (isDragging) e.preventDefault();
+    // });
 
     // Common end handler
     function handleEnd() {
@@ -444,8 +445,8 @@
       }, 300);
     }
 
-    document.addEventListener('touchend', handleEnd);
-    document.addEventListener('mouseup', handleEnd);
+    // document.addEventListener('touchend', handleEnd);
+    // document.addEventListener('mouseup', handleEnd);
 
     // Ride selection logic
     const params = new URLSearchParams(window.location.search);
@@ -457,7 +458,7 @@
       moto: "Quick & efficient",
       auto: "Breezy local travel",
       gosedan: "Comfortable Sedan",
-      gosuv: "Spacious for the family",
+      // gosuv: "Spacious for the family",
       ubergp: "Affordable GoUber"
     };
 
@@ -469,7 +470,7 @@
       ubergp: 260
     };
 
-    const rideOrder = ['moto', 'auto', 'ubergp', 'gosedan', 'gosuv']; // Explicit order for all rides
+    const rideOrder = ['moto', 'auto', 'ubergp', 'gosedan']; // Explicit order for all rides
 
     const criticalKeywords = ["hospital", "station", "railway", "emergency", "clinic", "medical", "airport", "health center"];
     const isCritical = criticalKeywords.some(word => drop.toLowerCase().includes(word));
@@ -569,7 +570,7 @@
     function formatTitle(type) {
       switch (type) {
         case 'gosedan': return 'Go Sedan';
-        case 'gosuv': return 'Go SUV';
+        // case 'gosuv': return 'Go SUV';
         case 'ubergp': return 'Uber Go';
         default: return type.charAt(0).toUpperCase() + type.slice(1);
       }
