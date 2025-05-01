@@ -183,6 +183,15 @@
       color: black;
       border: 1px solid black;
     }
+    .big-fare {
+      font-size: 20px;
+      font-weight: bold;
+      color: black;
+      display: block;
+      margin-bottom: 10px;
+    }
+
+
   </style>
 </head>
 <body>
@@ -196,7 +205,7 @@
 
   <div class="details" id="rideDetails"></div>
   <div class="priority" id="priorityNote">Priority Ride</div>
-  <div class="enjoy" id="enjoyMessage">Enjoy your ride!</div>
+  <div class="enjoy" id="enjoyMessage"></div>
   <button class="cancel-button" id="cancelRideBtn" onclick="openModal()">Cancel Ride</button>
 
   <!-- Modal -->
@@ -238,11 +247,14 @@
     const isPriority = Math.abs(fare - expectedPriorityFare) < 0.01;
 
     document.getElementById("rideDetails").innerHTML = `
+      <span class="big-fare">Fare: ₹${fare.toFixed(2)}</span>
+
+      <br>
       <strong>Ride Type:</strong> ${ride}<br>
       <strong>Pickup:</strong> ${pickup}<br>
       <strong>Destination:</strong> ${drop}<br>
-      <strong>Fare:</strong> ₹${fare.toFixed(2)}
     `;
+
 
     setTimeout(() => {
       document.getElementById("spinner").style.display = "none";
