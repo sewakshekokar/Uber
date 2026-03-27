@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <meta name="description" content="Ultimate Notes App — Handwriting, AI, Collaboration, and more."/>
+  <title>Ultimate Notes</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body class="theme-light" aria-label="Ultimate Notes Application">
+
+<!-- ═══════════════════════════════════════════════
+     LOCK SCREEN
+════════════════════════════════════════════════ -->
+<div id="lock-screen" role="dialog" aria-modal="true" aria-label="Lock screen" style="display:none">
+  <div class="lock-icon" aria-hidden="true">🔐</div>
+  <div class="lock-title">Ultimate Notes</div>
+  <div class="lock-subtitle" id="lock-subtitle">Enter your PIN or use biometrics</div>
+  <div class="lock-pin-dots" aria-label="PIN progress">
+    <div class="lock-pin-dot" id="pin-dot-0"></div>
+    <div class="lock-pin-dot" id="pin-dot-1"></div>
+    <div class="lock-pin-dot" id="pin-dot-2"></div>
+    <div class="lock-pin-dot" id="pin-dot-3"></div>
+  </div>
+  <div class="lock-numpad" role="group" aria-label="PIN pad">
+    <button class="numpad-btn" data-digit="1" onclick="pinDigit('1')" aria-label="1">1</button>
+    <button class="numpad-btn" data-digit="2" onclick="pinDigit('2')" aria-label="2">2</button>
+    <button class="numpad-btn" data-digit="3" onclick="pinDigit('3')" aria-label="3">3</button>
+    <button class="numpad-btn" data-digit="4" onclick="pinDigit('4')" aria-label="4">4</button>
+    <button class="numpad-btn" data-digit="5" onclick="pinDigit('5')" aria-label="5">5</button>
+    <button class="numpad-btn" data-digit="6" onclick="pinDigit('6')" aria-label="6">6</button>
+    <button class="numpad-btn" data-digit="7" onclick="pinDigit('7')" aria-label="7">7</button>
+    <button class="numpad-btn" data-digit="8" onclick="pinDigit('8')" aria-label="8">8</button>
+    <button class="numpad-btn" data-digit="9" onclick="pinDigit('9')" aria-label="9">9</button>
+    <button class="numpad-btn" onclick="biometricUnlock()" aria-label="Biometric unlock">👆</button>
+    <button class="numpad-btn" data-digit="0" onclick="pinDigit('0')" aria-label="0">0</button>
+    <button class="numpad-btn" onclick="pinBackspace()" aria-label="Delete">⌫</button>
+  </div>
+  <button class="biometric-btn" onclick="biometricUnlock()" aria-label="Use Face ID">
+    <span>😊</span> Use Face ID / Touch ID
+  </button>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MAIN APP
+════════════════════════════════════════════════ -->
+<div id="app">
+
+  <!-- ── SIDEBAR ─────────────────────────────── -->
+  <nav id="sidebar" role="navigation" aria-label="Main navigation">
+    <div class="sidebar-logo">
+      <div class="logo-icon" aria-hidden="true">📝</div>
+      <h1 class="sidebar-label" aria-label="Ultimate Notes">Ultimate Notes</h1>
+    </div>
+
+    <button id="new-note-btn" onclick="newNote()" aria-label="Create new note">
+      <span aria-hidden="true">✚</span>
+      <span>New Note</span>
+    </button>
+
+    <div class="sidebar-scroll">
+      <!-- Smart Collections -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title sidebar-label">Smart Collections</div>
+        <div class="sidebar-item active" onclick="filterNotes('all')" id="nav-all" role="button" aria-current="page">
+          <span class="icon" aria-hidden="true">📋</span>
+          <span class="sidebar-label">All Notes</span>
+          <span class="sidebar-badge" id="badge-all">0</span>
+        </div>
+        <div class="sidebar-item" onclick="filterNotes('recent')" id="nav-recent" role="button">
+          <span class="icon" aria-hidden="true">🕒</span>
+          <span class="sidebar-label">Recent</span>
+        </div>
+        <div class="sidebar-item" onclick="filterNotes('starred')" id="nav-starred" role="button">
+          <span class="icon" aria-hidden="true">⭐</span>
+          <span class="sidebar-label">Starred</span>
+          <span class="sidebar-badge" id="badge-starred">0</span>
+        </div>
+        <div class="sidebar-item" onclick="filterNotes('tasks')" id="nav-tasks" role="button">
+          <span class="icon" aria-hidden="true">✅</span>
+          <span class="sidebar-label">Tasks</span>
+        </div>
+        <div class="sidebar-item" onclick="filterNotes('handwritten')" id="nav-hw" role="button">
+          <span class="icon" aria-hidden="true">✏️</span>
+          <span class="sidebar-label">Handwritten</span>
+        </div>
+        <div class="sidebar-item" onclick="filterNotes('audio')" id="nav-audio" role="button">
+          <span class="icon" aria-hidden="true">🎤</span>
+          <span class="sidebar-label">Audio Notes</span>
+        </div>
+        <div class="sidebar-item" onclick="openTrash()" role="button">
+          <span class="icon" aria-hidden="true">🗑️</span>
+          <span class="sidebar-label">Trash</span>
+        </div>
+      </div>
+
+      <!-- Notebooks -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title sidebar-label">Notebooks</div>
+        <div id="notebooks-list"></div>
+        <div class="sidebar-item" onclick="openModal('modal-notebook')" role="button">
+          <span class="icon" aria-hidden="true">＋</span>
+          <span class="sidebar-label">New Notebook</span>
+        </div>
+      </div>
+
+      <!-- Tags -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title sidebar-label">Tags</div>
+        <div id="tags-list"></div>
+      </div>
+
+      <!-- Views -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title sidebar-label">Views</div>
+        <div class="sidebar-item" onclick="openKnowledgeGraph()" role="button">
+          <span class="icon" aria-hidden="true">🕸️</span>
+          <span class="sidebar-label">Knowledge Graph</span>
+        </div>
+        <div class="sidebar-item" onclick="openView('kanban')" role="button">
+          <span class="icon" aria-hidden="true">📌</span>
+          <span class="sidebar-label">Kanban Board</span>
+        </div>
+        <div class="sidebar-item" onclick="openView('calendar')" role="button">
+          <span class="icon" aria-hidden="true">📅</span>
+          <span class="sidebar-label">Calendar View</span>
+        </div>
+      </div>
+
+      <!-- Tools -->
+      <div class="sidebar-section">
+        <div class="sidebar-section-title sidebar-label">Tools</div>
+        <div class="sidebar-item" onclick="openModal('modal-search')" role="button">
+          <span class="icon" aria-hidden="true">🔍</span>
+          <span class="sidebar-label">Search</span>
+        </div>
+        <div class="sidebar-item" onclick="openModal('modal-templates')" role="button">
+          <span class="icon" aria-hidden="true">📐</span>
+          <span class="sidebar-label">Templates</span>
+        </div>
+        <div class="sidebar-item" onclick="openModal('modal-collab')" role="button">
+          <span class="icon" aria-hidden="true">👥</span>
+          <span class="sidebar-label">Collaboration</span>
+        </div>
+        <div class="sidebar-item" onclick="openModal('modal-sync')" role="button">
+          <span class="icon" aria-hidden="true">☁️</span>
+          <span class="sidebar-label">Cloud Sync</span>
+        </div>
+        <div class="sidebar-item" onclick="openModal('modal-security')" role="button">
+          <span class="icon" aria-hidden="true">🔒</span>
+          <span class="sidebar-label">Security</span>
+        </div>
+        <div class="sidebar-item" onclick="openModal('modal-settings')" role="button">
+          <span class="icon" aria-hidden="true">⚙️</span>
+          <span class="sidebar-label">Settings</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar footer -->
+    <div class="sidebar-footer">
+      <div class="avatar" aria-hidden="true">JD</div>
+      <div class="sidebar-user-info sidebar-label">
+        <div class="sidebar-user-name">Jane Doe</div>
+        <div class="sidebar-user-plan">Pro Plan · <span id="sync-indicator">✅ Synced</span></div>
+      </div>
+    </div>
+
+    <!-- Collapse button -->
+    <button class="sidebar-toggle-btn" onclick="toggleSidebar()" aria-label="Toggle sidebar" title="Collapse sidebar">‹</button>
+  </nav>
+
+  <!-- ── NOTES LIST PANEL ─────────────────────── -->
+  <section id="notes-list-panel" aria-label="Notes list">
+    <div class="list-header">
+      <div class="list-header-top">
+        <h2 class="list-title" id="list-title">All Notes</h2>
+        <div class="list-actions">
+          <button class="icon-btn" onclick="openModal('modal-search')" aria-label="Search" title="Search (⌘K)">🔍</button>
+          <button class="icon-btn" onclick="toggleViewMode()" id="view-mode-btn" aria-label="Toggle view" title="Switch view">⊞</button>
+          <button class="icon-btn" onclick="newNote()" aria-label="New note" title="New note">✚</button>
+        </div>
+      </div>
+      <div class="search-box" role="search">
+        <span class="search-icon" aria-hidden="true">🔍</span>
+        <input type="search" id="quick-search" placeholder="Quick search…" aria-label="Quick search notes"
+               oninput="quickSearch(this.value)" onkeydown="if(event.key==='Escape')this.value=''"/>
+      </div>
+    </div>
+
+    <div class="view-tabs" role="tablist" aria-label="View options">
+      <button class="view-tab active" onclick="setListView('list')" role="tab" aria-selected="true">≡ List</button>
+      <button class="view-tab" onclick="setListView('gallery')" role="tab" aria-selected="false">⊞ Gallery</button>
+      <button class="view-tab" onclick="setListView('cards')" role="tab" aria-selected="false">📌 Cards</button>
+      <button class="view-tab" onclick="setListView('calendar')" role="tab" aria-selected="false">📅 Calendar</button>
+    </div>
+
+    <div class="sort-bar">
+      <select id="sort-select" onchange="sortNotes(this.value)" aria-label="Sort notes">
+        <option value="modified">Modified</option>
+        <option value="created">Created</option>
+        <option value="title">Title A–Z</option>
+        <option value="title-desc">Title Z–A</option>
+      </select>
+      <button class="icon-btn btn-sm" onclick="togglePinned()" title="Toggle pinned" aria-label="Toggle pinned">📌</button>
+    </div>
+
+    <div class="notes-scroll" id="notes-scroll" role="list" aria-label="Notes"></div>
+  </section>
+
+  <!-- ── MAIN EDITOR AREA ─────────────────────── -->
+  <main id="editor-area" role="main" aria-label="Note editor">
+
+    <!-- Breadcrumb -->
+    <nav class="breadcrumb" id="breadcrumb" aria-label="Breadcrumb">
+      <span class="breadcrumb-item" onclick="filterNotes('all')">All Notes</span>
+    </nav>
+
+    <!-- Editor Toolbar -->
+    <div class="editor-toolbar" role="toolbar" aria-label="Formatting toolbar">
+      <!-- Mode toggle -->
+      <button class="toolbar-btn" onclick="setEditorMode('text')" id="btn-mode-text" title="Text mode" aria-label="Text editing mode" aria-pressed="true">📝</button>
+      <button class="toolbar-btn" onclick="setEditorMode('draw')" id="btn-mode-draw" title="Handwriting mode" aria-label="Handwriting mode" aria-pressed="false">✏️</button>
+      <button class="toolbar-btn" onclick="setEditorMode('markdown')" id="btn-mode-md" title="Markdown preview" aria-label="Markdown mode" aria-pressed="false">Md</button>
+      <div class="toolbar-divider" aria-hidden="true"></div>
+
+      <!-- Format -->
+      <button class="toolbar-btn" onclick="fmt('bold')" title="Bold (⌘B)" aria-label="Bold"><b>B</b></button>
+      <button class="toolbar-btn" onclick="fmt('italic')" title="Italic (⌘I)" aria-label="Italic"><i>I</i></button>
+      <button class="toolbar-btn" onclick="fmt('underline')" title="Underline (⌘U)" aria-label="Underline"><u>U</u></button>
+      <button class="toolbar-btn" onclick="fmt('strikeThrough')" title="Strikethrough" aria-label="Strikethrough"><s>S</s></button>
+      <div class="toolbar-divider" aria-hidden="true"></div>
+
+      <!-- Headings -->
+      <select class="toolbar-select" onchange="formatHeading(this.value); this.value=''" aria-label="Heading level">
+        <option value="">Paragraph</option>
+        <option value="h1">Heading 1</option>
+        <option value="h2">Heading 2</option>
+        <option value="h3">Heading 3</option>
+      </select>
+      <div class="toolbar-divider" aria-hidden="true"></div>
+
+      <!-- Lists & Blocks -->
+      <button class="toolbar-btn" onclick="fmt('insertUnorderedList')" title="Bullet list" aria-label="Bullet list">•≡</button>
+      <button class="toolbar-btn" onclick="fmt('insertOrderedList')" title="Numbered list" aria-label="Numbered list">1≡</button>
+      <button class="toolbar-btn" onclick="insertTaskList()" title="Task list" aria-label="Task list">☑</button>
+      <button class="toolbar-btn" onclick="fmt('formatBlock','blockquote')" title="Blockquote" aria-label="Blockquote">"</button>
+      <button class="toolbar-btn" onclick="insertCodeBlock()" title="Code block" aria-label="Code block">&lt;/&gt;</button>
+      <button class="toolbar-btn" onclick="insertTable()" title="Table" aria-label="Table">⊞</button>
+      <div class="toolbar-divider" aria-hidden="true"></div>
+
+      <!-- Insert -->
+      <button class="toolbar-btn" onclick="insertLink()" title="Insert link" aria-label="Insert link">🔗</button>
+      <button class="toolbar-btn" onclick="insertImage()" title="Insert image" aria-label="Insert image">🖼</button>
+      <button class="toolbar-btn" onclick="triggerAudioRecord()" title="Record audio" aria-label="Record audio" id="btn-audio">🎤</button>
+      <button class="toolbar-btn" onclick="insertWikiLink()" title="Wiki link [[note]]" aria-label="Insert wiki link">[[]]</button>
+      <button class="toolbar-btn" onclick="insertHR()" title="Horizontal rule" aria-label="Horizontal rule">—</button>
+      <div class="toolbar-divider" aria-hidden="true"></div>
+
+      <!-- Align -->
+      <button class="toolbar-btn" onclick="fmt('justifyLeft')" title="Align left" aria-label="Left align">⇐</button>
+      <button class="toolbar-btn" onclick="fmt('justifyCenter')" title="Center" aria-label="Center align">⇔</button>
+      <button class="toolbar-btn" onclick="fmt('justifyRight')" title="Align right" aria-label="Right align">⇒</button>
+
+      <div class="toolbar-spacer"></div>
+
+      <!-- Right side tools -->
+      <button class="toolbar-btn" onclick="toggleFocusMode()" title="Focus mode" aria-label="Focus mode" id="btn-focus">⊙</button>
+      <button class="toolbar-btn" onclick="toggleSplitView()" title="Split view" aria-label="Split view" id="btn-split">⊟</button>
+      <button class="toolbar-btn" onclick="openModal('modal-ai')" title="AI tools" aria-label="AI tools">🤖</button>
+      <button class="toolbar-btn" onclick="openModal('modal-export')" title="Export" aria-label="Export">⬆</button>
+      <button class="toolbar-btn" onclick="starNote()" title="Star note" aria-label="Star note" id="btn-star">☆</button>
+      <button class="toolbar-btn" onclick="showNoteInfo()" title="Note info" aria-label="Note info">ℹ</button>
+      <button class="toolbar-btn" onclick="toggleRightPanel()" title="Properties panel" aria-label="Toggle properties" id="btn-panel">▷</button>
+    </div>
+
+    <!-- Note title -->
+    <input type="text" id="note-title" class="note-title-input" placeholder="Note title…"
+           oninput="onTitleChange(this.value)" aria-label="Note title"/>
+
+    <!-- Note info bar -->
+    <div class="note-info-bar" id="note-info-bar">
+      <span class="note-info-item" id="info-date">📅 Today</span>
+      <span class="note-info-item" id="info-words">0 words</span>
+      <span class="note-info-item" id="info-nb">📚 Default</span>
+      <div class="note-tags-inline" id="note-tags-bar"></div>
+      <span class="security-badge encrypted" id="info-enc" title="End-to-end encrypted" style="display:none">🔐 Encrypted</span>
+    </div>
+
+    <!-- Audio recorder (hidden by default) -->
+    <div class="audio-recorder" id="audio-recorder" style="display:none" role="region" aria-label="Audio recorder">
+      <button class="rec-btn" id="rec-btn" onclick="toggleRecording()" aria-label="Start/stop recording">🎤</button>
+      <div class="audio-waveform" aria-hidden="true">
+        <div class="audio-bars" id="audio-bars"></div>
+      </div>
+      <span class="audio-time" id="audio-time" aria-live="polite">0:00</span>
+      <button class="icon-btn" onclick="hideAudioRecorder()" aria-label="Close recorder">✕</button>
+    </div>
+
+    <!-- Audio clips list -->
+    <div class="audio-clips" id="audio-clips-list"></div>
+
+    <!-- Editor content area (text / canvas / markdown) -->
+    <div class="editor-content-wrap" id="editor-content-wrap">
+      <div class="editor-split-left" id="editor-split-left">
+        <!-- Text editor -->
+        <div id="editor" contenteditable="true" spellcheck="true"
+             role="textbox" aria-multiline="true" aria-label="Note content"
+             oninput="onEditorChange()" onkeydown="handleEditorKey(event)"
+             onpaste="onEditorPaste(event)">
+        </div>
+
+        <!-- Canvas for handwriting/drawing -->
+        <div id="canvas-wrap" aria-label="Drawing canvas">
+          <canvas id="draw-canvas" aria-label="Handwriting canvas"></canvas>
+          <div class="canvas-toolbar" role="toolbar" aria-label="Drawing tools">
+            <button class="brush-btn active" onclick="setBrush('pen')" title="Pen" aria-label="Pen tool">🖊</button>
+            <button class="brush-btn" onclick="setBrush('pencil')" title="Pencil" aria-label="Pencil tool">✏️</button>
+            <button class="brush-btn" onclick="setBrush('marker')" title="Marker" aria-label="Marker tool">🖍</button>
+            <button class="brush-btn" onclick="setBrush('eraser')" title="Eraser" aria-label="Eraser tool">🧹</button>
+            <button class="brush-btn" onclick="setBrush('shape')" title="Shape recognition" aria-label="Shape recognition">⬡</button>
+            <div class="toolbar-divider" aria-hidden="true"></div>
+            <div class="color-swatch active nb-indigo" onclick="setBrushColor('#6366f1')" aria-label="Indigo" title="Indigo"></div>
+            <div class="color-swatch nb-pink" onclick="setBrushColor('#ec4899')" aria-label="Pink" title="Pink"></div>
+            <div class="color-swatch nb-cyan" onclick="setBrushColor('#06b6d4')" aria-label="Cyan" title="Cyan"></div>
+            <div class="color-swatch nb-green" onclick="setBrushColor('#10b981')" aria-label="Green" title="Green"></div>
+            <div class="color-swatch nb-orange" onclick="setBrushColor('#f97316')" aria-label="Orange" title="Orange"></div>
+            <div class="color-swatch" style="background:#1d1d1f" onclick="setBrushColor('#1d1d1f')" aria-label="Black" title="Black"></div>
+            <div class="color-swatch" style="background:#ef4444" onclick="setBrushColor('#ef4444')" aria-label="Red" title="Red"></div>
+            <div class="toolbar-divider" aria-hidden="true"></div>
+            <input type="range" id="brush-size" min="1" max="30" value="3"
+                   oninput="setBrushSize(this.value)" aria-label="Brush size" style="width:80px;accent-color:var(--accent)"/>
+            <div class="toolbar-divider" aria-hidden="true"></div>
+            <button class="brush-btn" onclick="undoCanvas()" title="Undo" aria-label="Undo">↩</button>
+            <button class="brush-btn" onclick="clearCanvas()" title="Clear canvas" aria-label="Clear canvas">🗑</button>
+            <button class="brush-btn" onclick="convertToText()" title="Convert handwriting to text (OCR)" aria-label="Convert to text">Aa</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Split view divider -->
+      <div class="editor-split-divider" id="split-divider" style="display:none"
+           onmousedown="startSplitDrag(event)" aria-hidden="true"></div>
+
+      <!-- Split view right side -->
+      <div class="editor-split-right" id="editor-split-right" style="display:none">
+        <div id="editor2" contenteditable="true" style="flex:1;padding:16px 20px 40px;overflow-y:auto;outline:none;font-size:15px;line-height:1.7;color:var(--text-primary);background:var(--bg-editor);font-family:var(--font-sans);" aria-label="Second note pane"></div>
+      </div>
+    </div>
+
+    <!-- Status bar -->
+    <div id="status-bar" role="status" aria-label="Status bar">
+      <div class="status-item">
+        <span class="status-dot" id="status-dot"></span>
+        <span id="status-sync">Synced</span>
+      </div>
+      <div class="status-item" id="status-words" aria-live="polite">0 words · 0 chars</div>
+      <div class="status-item" id="status-mode">Text</div>
+      <div class="status-item" id="status-collab" style="display:none">
+        👥 <span id="collab-count">2</span> collaborators
+      </div>
+      <div class="status-spacer" style="flex:1"></div>
+      <div class="status-item" id="status-shortcut-hint" style="font-size:11px">
+        ⌘K to search · ⌘N new note
+      </div>
+    </div>
+  </main>
+
+  <!-- ── RIGHT PANEL ──────────────────────────── -->
+  <aside id="right-panel" role="complementary" aria-label="Properties panel">
+    <div class="right-panel-tabs" role="tablist">
+      <button class="rp-tab active" onclick="setRPTab('info')" role="tab" aria-selected="true">Info</button>
+      <button class="rp-tab" onclick="setRPTab('ai')" role="tab" aria-selected="false">AI</button>
+      <button class="rp-tab" onclick="setRPTab('links')" role="tab" aria-selected="false">Links</button>
+      <button class="rp-tab" onclick="setRPTab('collab')" role="tab" aria-selected="false">Collab</button>
+      <button class="rp-tab" onclick="setRPTab('history')" role="tab" aria-selected="false">History</button>
+    </div>
+    <div class="right-panel-content" id="right-panel-content">
+      <!-- Info tab -->
+      <div id="rp-info" class="rp-tab-content">
+        <div class="rp-section">
+          <div class="rp-section-title">Note Info</div>
+          <div class="rp-row"><span class="rp-label">Created</span><span class="rp-value" id="rp-created">—</span></div>
+          <div class="rp-row"><span class="rp-label">Modified</span><span class="rp-value" id="rp-modified">—</span></div>
+          <div class="rp-row"><span class="rp-label">Words</span><span class="rp-value" id="rp-words">0</span></div>
+          <div class="rp-row"><span class="rp-label">Chars</span><span class="rp-value" id="rp-chars">0</span></div>
+          <div class="rp-row"><span class="rp-label">Notebook</span><span class="rp-value" id="rp-notebook">Default</span></div>
+        </div>
+        <div class="rp-section">
+          <div class="rp-section-title">Tags</div>
+          <div class="tags-wrap" id="rp-tags"></div>
+          <div class="tag-input-wrap">
+            <input type="text" id="tag-input" placeholder="Add tag…" aria-label="Add tag"
+                   onkeydown="if(event.key==='Enter')addTag(this.value)"/>
+            <button class="btn btn-primary btn-sm" onclick="addTag(document.getElementById('tag-input').value)">Add</button>
+          </div>
+        </div>
+        <div class="rp-section">
+          <div class="rp-section-title">Notebook</div>
+          <select class="form-input" id="rp-nb-select" onchange="changeNoteNotebook(this.value)" aria-label="Select notebook" style="font-size:13px;padding:6px 10px;">
+          </select>
+        </div>
+        <div class="rp-section">
+          <div class="rp-section-title">Options</div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">Pin Note</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="rp-pin" onchange="togglePin()"><span class="toggle-track"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-info">
+              <div class="toggle-label">Encrypt Note</div>
+              <div class="toggle-desc">End-to-end encrypted</div>
+            </div>
+            <label class="toggle"><input type="checkbox" id="rp-encrypt" onchange="toggleEncrypt()"><span class="toggle-track"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <!-- AI tab -->
+      <div id="rp-ai" class="rp-tab-content" style="display:none">
+        <div class="rp-section">
+          <div class="rp-section-title">AI Actions</div>
+          <button class="ai-action-btn" onclick="aiAction('summarize')" aria-label="Summarize note">📋 Summarize Note</button>
+          <button class="ai-action-btn" onclick="aiAction('quiz')" aria-label="Generate quiz">❓ Generate Quiz</button>
+          <button class="ai-action-btn" onclick="aiAction('flashcards')" aria-label="Create flashcards">🃏 Create Flashcards</button>
+          <button class="ai-action-btn" onclick="aiAction('grammar')" aria-label="Grammar check">✍ Grammar & Style</button>
+          <button class="ai-action-btn" onclick="aiAction('format')" aria-label="Smart format">🪄 Smart Format</button>
+          <button class="ai-action-btn" onclick="aiAction('tasks')" aria-label="Extract tasks">✅ Extract Tasks</button>
+          <button class="ai-action-btn" onclick="aiAction('expand')" aria-label="Expand ideas">💡 Expand Ideas</button>
+          <button class="ai-action-btn" onclick="aiAction('transcribe')" aria-label="Transcribe audio">🎤 Transcribe Audio</button>
+        </div>
+        <div class="ai-result" id="ai-result" aria-live="polite"></div>
+      </div>
+
+      <!-- Links tab -->
+      <div id="rp-links" class="rp-tab-content" style="display:none">
+        <div class="rp-section">
+          <div class="rp-section-title">Backlinks</div>
+          <div id="backlinks-list"><p style="font-size:13px;color:var(--text-tertiary)">No backlinks yet.</p></div>
+        </div>
+        <div class="rp-section">
+          <div class="rp-section-title">Outgoing Links</div>
+          <div id="outlinks-list"><p style="font-size:13px;color:var(--text-tertiary)">No links yet.</p></div>
+        </div>
+      </div>
+
+      <!-- Collab tab -->
+      <div id="rp-collab" class="rp-tab-content" style="display:none">
+        <div class="rp-section">
+          <div class="rp-section-title">Collaborators</div>
+          <div id="collab-users-list"></div>
+          <button class="btn btn-primary btn-sm" onclick="openModal('modal-invite')" style="margin-top:8px;width:100%">
+            ✉ Invite by Email
+          </button>
+        </div>
+        <div class="rp-section">
+          <div class="rp-section-title">Comments</div>
+          <div id="comments-list"></div>
+          <div style="display:flex;gap:6px;margin-top:8px">
+            <input class="form-input" id="comment-input" placeholder="Add comment…" aria-label="Add comment" style="font-size:13px;padding:6px 10px;"/>
+            <button class="btn btn-primary btn-sm" onclick="addComment()">Post</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- History tab -->
+      <div id="rp-history" class="rp-tab-content" style="display:none">
+        <div class="rp-section">
+          <div class="rp-section-title">Version History</div>
+          <div id="version-history-list"></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+</div><!-- /#app -->
+
+<!-- ═══════════════════════════════════════════════
+     SEARCH OVERLAY
+════════════════════════════════════════════════ -->
+<div id="search-overlay" role="dialog" aria-modal="true" aria-label="Search" onclick="closeSearchOverlay(event)">
+  <div class="search-modal" onclick="event.stopPropagation()">
+    <div class="search-input-wrap">
+      <span class="search-icon" aria-hidden="true">🔍</span>
+      <input type="search" id="search-main-input" placeholder="Search notes, content, tags…"
+             autofocus oninput="globalSearch(this.value)" aria-label="Search all notes"/>
+      <button class="icon-btn" onclick="closeSearchOverlay()" aria-label="Close search">✕</button>
+    </div>
+    <div class="search-filters" role="group" aria-label="Search filters">
+      <button class="filter-chip active" onclick="toggleFilter(this,'all')" data-filter="all">All</button>
+      <button class="filter-chip" onclick="toggleFilter(this,'typed')" data-filter="typed">📝 Typed</button>
+      <button class="filter-chip" onclick="toggleFilter(this,'handwritten')" data-filter="handwritten">✏️ Handwritten</button>
+      <button class="filter-chip" onclick="toggleFilter(this,'audio')" data-filter="audio">🎤 Audio</button>
+      <button class="filter-chip" onclick="toggleFilter(this,'starred')" data-filter="starred">⭐ Starred</button>
+    </div>
+    <div class="search-history" id="search-history-section">
+      <div class="search-history-title">Recent Searches</div>
+      <div id="search-history-list"></div>
+    </div>
+    <div class="search-results" id="search-results-list" aria-live="polite"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     CONTEXT MENU
+════════════════════════════════════════════════ -->
+<div id="context-menu" class="context-menu" role="menu" aria-label="Context menu">
+  <div class="ctx-item" onclick="ctxAction('open')" role="menuitem"><span class="icon">📂</span>Open</div>
+  <div class="ctx-item" onclick="ctxAction('duplicate')" role="menuitem"><span class="icon">⎘</span>Duplicate</div>
+  <div class="ctx-item" onclick="ctxAction('pin')" role="menuitem"><span class="icon">📌</span>Pin / Unpin</div>
+  <div class="ctx-item" onclick="ctxAction('star')" role="menuitem"><span class="icon">⭐</span>Star / Unstar</div>
+  <div class="ctx-item" onclick="ctxAction('move')" role="menuitem"><span class="icon">📁</span>Move to Notebook</div>
+  <div class="ctx-item" onclick="ctxAction('share')" role="menuitem"><span class="icon">🔗</span>Share Note</div>
+  <div class="ctx-item" onclick="ctxAction('export')" role="menuitem"><span class="icon">⬆</span>Export</div>
+  <div class="ctx-sep" role="separator"></div>
+  <div class="ctx-item danger" onclick="ctxAction('delete')" role="menuitem"><span class="icon">🗑</span>Delete</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     MODALS
+════════════════════════════════════════════════ -->
+
+<!-- New Notebook Modal -->
+<div class="modal-overlay" id="modal-notebook" role="dialog" aria-modal="true" aria-label="Create notebook" onclick="closeOnOverlay(event,this)">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3 class="modal-title">New Notebook</h3>
+      <button class="modal-close" onclick="closeModal('modal-notebook')" aria-label="Close">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label" for="nb-name-input">Name</label>
+      <input class="form-input" id="nb-name-input" placeholder="Notebook name" aria-required="true"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Color</label>
+      <div class="emoji-row" id="nb-color-picker">
+        <div class="color-swatch nb-indigo" onclick="selectNbColor('nb-indigo','#6366f1')" aria-label="Indigo"></div>
+        <div class="color-swatch nb-pink" onclick="selectNbColor('nb-pink','#ec4899')" aria-label="Pink"></div>
+        <div class="color-swatch nb-cyan" onclick="selectNbColor('nb-cyan','#06b6d4')" aria-label="Cyan"></div>
+        <div class="color-swatch nb-green" onclick="selectNbColor('nb-green','#10b981')" aria-label="Green"></div>
+        <div class="color-swatch nb-orange" onclick="selectNbColor('nb-orange','#f97316')" aria-label="Orange"></div>
+        <div class="color-swatch nb-yellow" onclick="selectNbColor('nb-yellow','#f59e0b')" aria-label="Yellow"></div>
+        <div class="color-swatch nb-red" onclick="selectNbColor('nb-red','#ef4444')" aria-label="Red"></div>
+        <div class="color-swatch nb-violet" onclick="selectNbColor('nb-violet','#8b5cf6')" aria-label="Violet"></div>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Icon</label>
+      <div class="emoji-row">
+        <span class="emoji-pick" onclick="selectNbIcon(this)">📓</span>
+        <span class="emoji-pick" onclick="selectNbIcon(this)">📔</span>
+        <span class="emoji-pick" onclick="selectNbIcon(this)">📒</span>
+        <span class="emoji-pick" onclick="selectNbIcon(this)">📕</span>
+        <span class="emoji-pick" onclick="selectNbIcon(this)">💼</span>
+        <span class="emoji-pick" onclick="selectNbIcon(this)">🎓</span>
+        <span class="emoji-pick" onclick="selectNbIcon(this)">💡</span>
+        <span class="emoji-pick" onclick="selectNbIcon(this)">🔬</span>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-notebook')">Cancel</button>
+      <button class="btn btn-primary" onclick="createNotebook()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- Templates Modal -->
+<div class="modal-overlay" id="modal-templates" role="dialog" aria-modal="true" aria-label="Templates" onclick="closeOnOverlay(event,this)">
+  <div class="modal modal-xl">
+    <div class="modal-header">
+      <h3 class="modal-title">📐 Templates</h3>
+      <button class="modal-close" onclick="closeModal('modal-templates')" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="templates-grid" id="templates-grid"></div>
+    </div>
+  </div>
+</div>
+
+<!-- AI Modal -->
+<div class="modal-overlay" id="modal-ai" role="dialog" aria-modal="true" aria-label="AI Tools" onclick="closeOnOverlay(event,this)">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 class="modal-title">🤖 AI Tools</h3>
+      <button class="modal-close" onclick="closeModal('modal-ai')" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom:16px;color:var(--text-secondary)">Powered by your choice of LLM. Select an action below:</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <button class="ai-action-btn" onclick="aiActionModal('summarize')">📋 Auto-summarize</button>
+        <button class="ai-action-btn" onclick="aiActionModal('quiz')">❓ Generate Quiz</button>
+        <button class="ai-action-btn" onclick="aiActionModal('flashcards')">🃏 Study Flashcards</button>
+        <button class="ai-action-btn" onclick="aiActionModal('grammar')">✍ Grammar & Style</button>
+        <button class="ai-action-btn" onclick="aiActionModal('format')">🪄 Smart Formatting</button>
+        <button class="ai-action-btn" onclick="aiActionModal('tasks')">✅ Extract Tasks</button>
+        <button class="ai-action-btn" onclick="aiActionModal('expand')">💡 Content Suggestions</button>
+        <button class="ai-action-btn" onclick="aiActionModal('transcribe')">🎤 Transcribe Audio</button>
+      </div>
+      <div class="ai-result" id="ai-result-modal" aria-live="polite" style="margin-top:16px"></div>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border-light)">
+        <select class="form-input" id="ai-model-select" style="font-size:13px;padding:6px 10px;" aria-label="Select AI model">
+          <option>GPT-4o (OpenAI)</option>
+          <option>Claude 3.5 Sonnet (Anthropic)</option>
+          <option>Gemini Pro (Google)</option>
+          <option>Llama 3 (Local)</option>
+          <option>Mistral (Local)</option>
+        </select>
+        <span style="font-size:12px;color:var(--text-tertiary)">API key in Settings</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Export Modal -->
+<div class="modal-overlay" id="modal-export" role="dialog" aria-modal="true" aria-label="Export" onclick="closeOnOverlay(event,this)">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 class="modal-title">⬆ Export & Share</h3>
+      <button class="modal-close" onclick="closeModal('modal-export')" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <p style="margin-bottom:16px;color:var(--text-secondary)">Choose export format:</p>
+      <div class="export-options" id="export-options">
+        <div class="export-option selected" onclick="selectExport(this,'pdf')" data-format="pdf">
+          <div class="export-icon">📄</div>
+          <div class="export-name">PDF</div>
+        </div>
+        <div class="export-option" onclick="selectExport(this,'docx')" data-format="docx">
+          <div class="export-icon">📝</div>
+          <div class="export-name">Word (.docx)</div>
+        </div>
+        <div class="export-option" onclick="selectExport(this,'html')" data-format="html">
+          <div class="export-icon">🌐</div>
+          <div class="export-name">HTML</div>
+        </div>
+        <div class="export-option" onclick="selectExport(this,'md')" data-format="md">
+          <div class="export-icon">Md</div>
+          <div class="export-name">Markdown</div>
+        </div>
+        <div class="export-option" onclick="selectExport(this,'txt')" data-format="txt">
+          <div class="export-icon">📃</div>
+          <div class="export-name">Plain Text</div>
+        </div>
+        <div class="export-option" onclick="selectExport(this,'epub')" data-format="epub">
+          <div class="export-icon">📚</div>
+          <div class="export-name">ePub</div>
+        </div>
+      </div>
+      <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border-light)">
+        <p style="font-size:13px;font-weight:600;margin-bottom:10px">Share as Link</p>
+        <div style="display:flex;gap:8px">
+          <input class="form-input" id="share-link-input" value="https://notes.app/share/abc123" readonly style="font-size:13px;padding:6px 10px" aria-label="Share link"/>
+          <button class="btn btn-secondary btn-sm" onclick="copyShareLink()" aria-label="Copy link">Copy</button>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" onclick="shareVia('email')" aria-label="Share via email">📧 Email</button>
+          <button class="btn btn-secondary btn-sm" onclick="shareVia('qr')" aria-label="Share QR code">📲 QR Code</button>
+          <button class="btn btn-secondary btn-sm" onclick="shareVia('public')" aria-label="Publish note">🌐 Publish Public</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-export')">Cancel</button>
+      <button class="btn btn-primary" onclick="doExport()" aria-label="Download export">Download</button>
+    </div>
+  </div>
+</div>
+
+<!-- Collaboration Modal -->
+<div class="modal-overlay" id="modal-collab" role="dialog" aria-modal="true" aria-label="Collaboration" onclick="closeOnOverlay(event,this)">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 class="modal-title">👥 Real-Time Collaboration</h3>
+      <button class="modal-close" onclick="closeModal('modal-collab')" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="rp-section">
+        <div class="rp-section-title" style="font-size:13px;font-weight:600;margin-bottom:10px">Active Collaborators</div>
+        <div id="modal-collab-users"></div>
+      </div>
+      <div style="margin-top:16px">
+        <p style="font-size:13px;font-weight:600;margin-bottom:8px">Invite by Email</p>
+        <div style="display:flex;gap:8px;margin-bottom:8px">
+          <input class="form-input" id="invite-email" placeholder="email@example.com" aria-label="Email to invite" style="font-size:13px;padding:7px 10px;"/>
+          <select class="form-input" id="invite-role" style="font-size:13px;padding:7px 10px;width:120px;" aria-label="Permission role">
+            <option>Viewer</option>
+            <option selected>Editor</option>
+            <option>Owner</option>
+          </select>
+        </div>
+        <button class="btn btn-primary" onclick="sendInvite()">Send Invite</button>
+      </div>
+      <div class="toggle-row" style="margin-top:16px">
+        <div class="toggle-info">
+          <div class="toggle-label">Show Cursor Positions</div>
+          <div class="toggle-desc">See where collaborators are editing</div>
+        </div>
+        <label class="toggle"><input type="checkbox" checked onchange=""><span class="toggle-track"></span></label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Invite Modal -->
+<div class="modal-overlay" id="modal-invite" role="dialog" aria-modal="true" aria-label="Invite collaborator" onclick="closeOnOverlay(event,this)">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3 class="modal-title">✉ Invite Collaborator</h3>
+      <button class="modal-close" onclick="closeModal('modal-invite')" aria-label="Close">✕</button>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Email address</label>
+      <input class="form-input" id="invite-email2" placeholder="colleague@example.com" type="email" aria-label="Collaborator email"/>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Permission</label>
+      <select class="form-input" id="invite-role2" aria-label="Permission level">
+        <option>Viewer – can read only</option>
+        <option selected>Editor – can edit</option>
+        <option>Owner – full access</option>
+      </select>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-invite')">Cancel</button>
+      <button class="btn btn-primary" onclick="sendInvite2()">Send</button>
+    </div>
+  </div>
+</div>
+
+<!-- Cloud Sync Modal -->
+<div class="modal-overlay" id="modal-sync" role="dialog" aria-modal="true" aria-label="Cloud Sync" onclick="closeOnOverlay(event,this)">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 class="modal-title">☁ Cloud Sync & Offline</h3>
+      <button class="modal-close" onclick="closeModal('modal-sync')" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="rp-section">
+        <div class="rp-section-title" style="font-size:13px;font-weight:600;margin-bottom:10px">Sync Providers</div>
+        <div class="toggle-row">
+          <div class="toggle-info"><div class="toggle-label">☁ iCloud Drive</div><div class="toggle-desc">Sync via Apple iCloud</div></div>
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info"><div class="toggle-label">🟢 Google Drive</div><div class="toggle-desc">Sync via Google Drive</div></div>
+          <label class="toggle"><input type="checkbox"><span class="toggle-track"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info"><div class="toggle-label">📦 Dropbox</div><div class="toggle-desc">Sync via Dropbox</div></div>
+          <label class="toggle"><input type="checkbox"><span class="toggle-track"></span></label>
+        </div>
+      </div>
+      <div class="rp-section" style="margin-top:16px">
+        <div class="rp-section-title" style="font-size:13px;font-weight:600;margin-bottom:10px">Offline & Conflict</div>
+        <div class="toggle-row">
+          <div class="toggle-info"><div class="toggle-label">Full Offline Mode</div><div class="toggle-desc">All notes available without internet</div></div>
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info"><div class="toggle-label">Auto-sync on Reconnect</div><div class="toggle-desc">Sync automatically when back online</div></div>
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info"><div class="toggle-label">Conflict Resolution: Latest Wins</div><div class="toggle-desc">Automatically resolve conflicts</div></div>
+          <label class="toggle"><input type="checkbox"><span class="toggle-track"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info"><div class="toggle-label">End-to-End Encryption</div><div class="toggle-desc">Notes encrypted before upload</div></div>
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+        </div>
+      </div>
+      <div style="display:flex;justify-content:flex-end;margin-top:16px">
+        <button class="btn btn-primary" onclick="triggerSync()">Sync Now</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Security Modal -->
+<div class="modal-overlay" id="modal-security" role="dialog" aria-modal="true" aria-label="Security settings" onclick="closeOnOverlay(event,this)">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 class="modal-title">🔒 Security & Privacy</h3>
+      <button class="modal-close" onclick="closeModal('modal-security')" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="toggle-row">
+        <div class="toggle-info"><div class="toggle-label">😊 Face ID / Touch ID Lock</div><div class="toggle-desc">Require biometric to open app</div></div>
+        <label class="toggle"><input type="checkbox" id="toggle-biometric" onchange="toggleBiometric(this.checked)"><span class="toggle-track"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info"><div class="toggle-label">🔐 PIN Lock</div><div class="toggle-desc">4-digit PIN as backup</div></div>
+        <label class="toggle"><input type="checkbox" id="toggle-pin" onchange="togglePinLock(this.checked)"><span class="toggle-track"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info"><div class="toggle-label">🛡 Two-Factor Authentication</div><div class="toggle-desc">Protect your account with 2FA</div></div>
+        <label class="toggle"><input type="checkbox"><span class="toggle-track"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info"><div class="toggle-label">🔑 End-to-End Encryption</div><div class="toggle-desc">Notes encrypted before cloud upload</div></div>
+        <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info"><div class="toggle-label">📍 Local-First Storage</div><div class="toggle-desc">Data never stored on servers</div></div>
+        <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+      </div>
+      <div class="toggle-row">
+        <div class="toggle-info"><div class="toggle-label">📋 Audit Log</div><div class="toggle-desc">Track who accessed what and when</div></div>
+        <label class="toggle"><input type="checkbox"><span class="toggle-track"></span></label>
+      </div>
+      <div style="margin-top:16px;padding:12px;background:var(--accent-light);border-radius:var(--radius-md)">
+        <span style="font-size:13px;color:var(--accent)">✅ GDPR Compliant · Your data, your control.</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings Modal -->
+<div class="modal-overlay" id="modal-settings" role="dialog" aria-modal="true" aria-label="Settings" onclick="closeOnOverlay(event,this)">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3 class="modal-title">⚙ Settings</h3>
+      <button class="modal-close" onclick="closeModal('modal-settings')" aria-label="Close">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- Theme -->
+      <div class="form-group">
+        <label class="form-label">Theme</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" onclick="setTheme('theme-light')" aria-label="Light theme">☀ Light</button>
+          <button class="btn btn-secondary btn-sm" onclick="setTheme('theme-dark')" aria-label="Dark theme">🌙 Dark</button>
+          <button class="btn btn-secondary btn-sm" onclick="setTheme('theme-hc')" aria-label="High contrast">⊕ High Contrast</button>
+        </div>
+      </div>
+      <!-- Font -->
+      <div class="form-group">
+        <label class="form-label">Editor Font</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" onclick="setFont('')" aria-label="System font">System</button>
+          <button class="btn btn-secondary btn-sm" onclick="setFont('font-serif')" aria-label="Serif font">Serif</button>
+          <button class="btn btn-secondary btn-sm" onclick="setFont('font-mono')" aria-label="Monospace font">Mono</button>
+        </div>
+      </div>
+      <!-- Font size -->
+      <div class="form-group">
+        <label class="form-label">Font Size</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" onclick="setFontSize('font-size-sm')" aria-label="Small">Small</button>
+          <button class="btn btn-secondary btn-sm" onclick="setFontSize('')" aria-label="Medium">Medium</button>
+          <button class="btn btn-secondary btn-sm" onclick="setFontSize('font-size-lg')" aria-label="Large">Large</button>
+          <button class="btn btn-secondary btn-sm" onclick="setFontSize('font-size-xl')" aria-label="Extra large">XL</button>
+        </div>
+      </div>
+      <!-- Accessibility -->
+      <div class="form-group">
+        <label class="form-label">Accessibility</label>
+        <div class="toggle-row">
+          <div class="toggle-info"><div class="toggle-label">VoiceOver / Screen Reader</div></div>
+          <label class="toggle"><input type="checkbox" checked><span class="toggle-track"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info"><div class="toggle-label">Dynamic Type</div><div class="toggle-desc">Follow system font size</div></div>
+          <label class="toggle"><input type="checkbox"><span class="toggle-track"></span></label>
+        </div>
+        <div class="toggle-row">
+          <div class="toggle-info"><div class="toggle-label">Voice Commands</div><div class="toggle-desc">Hey Siri, note that…</div></div>
+          <label class="toggle"><input type="checkbox"><span class="toggle-track"></span></label>
+        </div>
+      </div>
+      <!-- AI Config -->
+      <div class="form-group">
+        <label class="form-label">AI API Key</label>
+        <input class="form-input" type="password" placeholder="sk-…  or paste your key" aria-label="AI API key"/>
+      </div>
+      <!-- Data -->
+      <div style="display:flex;gap:8px;flex-wrap:wrap;padding-top:8px;border-top:1px solid var(--border-light)">
+        <button class="btn btn-secondary btn-sm" onclick="exportAllNotes()" aria-label="Export all notes">⬆ Export All</button>
+        <button class="btn btn-secondary btn-sm" onclick="importNotes()" aria-label="Import notes">⬇ Import</button>
+        <button class="btn btn-danger btn-sm" onclick="clearAllData()" aria-label="Clear all data">🗑 Clear All Data</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Knowledge Graph Modal -->
+<div class="modal-overlay" id="modal-graph" role="dialog" aria-modal="true" aria-label="Knowledge graph" onclick="closeOnOverlay(event,this)">
+  <div class="modal modal-xl" style="height:80vh;display:flex;flex-direction:column;">
+    <div class="modal-header" style="flex-shrink:0">
+      <h3 class="modal-title">🕸 Knowledge Graph</h3>
+      <div style="display:flex;gap:8px;align-items:center">
+        <span style="font-size:12px;color:var(--text-tertiary)">Nodes: <strong id="graph-node-count">0</strong></span>
+        <button class="modal-close" onclick="closeModal('modal-graph')" aria-label="Close">✕</button>
+      </div>
+    </div>
+    <canvas id="graph-canvas" style="flex:1;border-radius:var(--radius-lg);background:var(--bg-tertiary);" aria-label="Knowledge graph visualization"></canvas>
+    <p style="font-size:12px;color:var(--text-tertiary);text-align:center;padding:8px 0;flex-shrink:0">
+      Nodes = notes · Edges = [[wiki links]] · Click to open note
+    </p>
+  </div>
+</div>
+
+<!-- Kanban Modal -->
+<div class="modal-overlay" id="modal-kanban" role="dialog" aria-modal="true" aria-label="Kanban board" onclick="closeOnOverlay(event,this)">
+  <div class="modal modal-xl" style="height:80vh;display:flex;flex-direction:column;padding:20px;">
+    <div class="modal-header" style="flex-shrink:0">
+      <h3 class="modal-title">📌 Kanban Board</h3>
+      <button class="modal-close" onclick="closeModal('modal-kanban')" aria-label="Close">✕</button>
+    </div>
+    <div class="kanban-board" id="kanban-board" style="flex:1;overflow:auto"></div>
+  </div>
+</div>
+
+<!-- Note Info Modal -->
+<div class="modal-overlay" id="modal-note-info" role="dialog" aria-modal="true" aria-label="Note information" onclick="closeOnOverlay(event,this)">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3 class="modal-title">ℹ Note Information</h3>
+      <button class="modal-close" onclick="closeModal('modal-note-info')" aria-label="Close">✕</button>
+    </div>
+    <div id="modal-note-info-content" class="modal-body"></div>
+  </div>
+</div>
+
+<!-- Toast container -->
+<div id="toast-container" aria-live="polite" aria-atomic="false"></div>
+
+<!-- Hidden file inputs -->
+<input type="file" id="img-file-input" accept="image/*" style="display:none" onchange="onImageSelected(event)" aria-hidden="true"/>
+<input type="file" id="import-file-input" accept=".json,.md,.txt" style="display:none" onchange="onImportFile(event)" aria-hidden="true"/>
+
+<script src="app.js"></script>
+</body>
+</html>
